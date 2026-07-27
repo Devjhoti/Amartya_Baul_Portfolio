@@ -194,6 +194,7 @@ export default function HeroPortrait({ photo, stats, fact }) {
               height={photo.height}
               alt="Amartya Baul"
               priority
+              quality={92}
               sizes="(min-width: 1024px) 460px, 85vw"
               className="h-auto w-full"
             />
@@ -225,7 +226,7 @@ export default function HeroPortrait({ photo, stats, fact }) {
           <p
             data-signature=""
             aria-hidden="true"
-            className="pointer-events-none absolute -bottom-8 left-1/2 z-30 whitespace-nowrap font-script text-[2.75rem] leading-none text-chalk [transform:translateX(-50%)_rotate(-4deg)]"
+            className="pointer-events-none absolute -bottom-12 left-1/2 z-30 whitespace-nowrap font-script text-[2.75rem] leading-none text-chalk [transform:translateX(-50%)_rotate(-4deg)]"
           >
             Amartya Baul
           </p>

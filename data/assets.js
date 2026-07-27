@@ -15,10 +15,9 @@
 
 export const assets = {
   profile: "/portrait.jpg",
-  // hero cutout (transparent): the supplied low-res cutout's alpha was
-  // transferred onto the original 1856×2304 studio frame (git history) with a
-  // chroma-key cleanup pass — full pipeline in the Phase notes. §8.4
-  portraitCutout: { src: "/portrait-cutout.webp", width: 967, height: 1200 },
+  // hero cutout: the supplied Cloudinary PNG untouched (lossless, border
+  // trimmed only so the figure seats flush on the panel). §8.4
+  portraitCutout: { src: "/portrait-cutout.png", width: 372, height: 521 },
 
   posters: {
     "ids-group": "/posters/ids-group.webp",
