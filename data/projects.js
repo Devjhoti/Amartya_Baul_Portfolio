@@ -101,7 +101,7 @@ export const projects = [
     sector: "Building Materials",
     chip: "corrugated",
     url: "https://anwar-cement-sheet-prd.vercel.app/",
-    logo: "/logos/anwar-cement-sheet.png", // NEEDS_AMARTYA — background removal, currently a white-backed export
+    logo: "/logos/anwar-cement-sheet.png", // white bg keyed out locally; swap in a clean official export when available
     poster: "/posters/anwar-cement-sheet.webp",
     type: "client",
     context: "PKG IT",
@@ -288,7 +288,7 @@ export const projects = [
     sector: "Polymer & Plastics",
     chip: "pellets",
     url: "https://a1-polymer-demo-web.vercel.app/",
-    logo: "/logos/a1-polymer.png", // NEEDS_AMARTYA — background removal, currently a white-backed export
+    logo: "/logos/a1-polymer.png", // already transparent — no background removal needed
     poster: "/posters/a1-polymer.webp",
     type: "client",
     context: "PKG IT",

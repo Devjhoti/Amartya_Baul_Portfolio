@@ -41,7 +41,11 @@ function LogoButton({ project, index, clone }) {
           alt={clone ? "" : `${project.client} logo`}
           fill
           sizes="112px"
-          className="object-contain opacity-55 brightness-0 invert transition-opacity group-hover:opacity-100"
+          className={`object-contain opacity-90 transition-opacity group-hover:opacity-100 ${
+            // stopgap: this logo is dark ink on transparent and vanishes on the
+            // machine ground — inverted until a light/colour export exists
+            project.slug === "anowar-ispat" ? "invert" : ""
+          }`}
         />
       </span>
       <MonoLabel
@@ -77,7 +81,7 @@ function RowContent({ projects, agency, clone = false }) {
                 alt={clone ? "" : `${agency.name} logo`}
                 fill
                 sizes="112px"
-                className="object-contain opacity-55 brightness-0 invert"
+                className="object-contain opacity-90"
               />
             </span>
             <MonoLabel as="span" className="mt-3 block text-chalk-mute">
