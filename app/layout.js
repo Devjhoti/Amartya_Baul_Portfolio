@@ -65,6 +65,10 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
+      // The body-start script adds the .js class before hydration (the CLS
+      // guard for reveal text) — an intentional pre-hydration mutation of this
+      // one element, so React must not compare its attributes.
+      suppressHydrationWarning
       className={`${archivo.variable} ${satoshi.variable} ${martianMono.variable}`}
     >
       <body className="bg-concrete font-body text-ink">

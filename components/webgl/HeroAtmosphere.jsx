@@ -27,12 +27,19 @@ export default function HeroAtmosphere() {
     const canvas = canvasRef.current;
     if (!wrap || !canvas) return;
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: false,
-      alpha: false,
-      powerPreference: "low-power",
-    });
+    // Context creation can fail on blocked GPUs, remote sessions and headless
+    // environments — in that case the procedural fallback beneath simply stays.
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: false,
+        alpha: false,
+        powerPreference: "low-power",
+      });
+    } catch {
+      return;
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 
     const scene = new THREE.Scene();
