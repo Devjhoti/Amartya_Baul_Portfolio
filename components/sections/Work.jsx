@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { gsap, ScrollTrigger, useGSAP, MM } from "@/lib/gsap";
 import { EASE } from "@/lib/motion";
 import { useIsDesktop, usePrefersReducedMotion } from "@/lib/useIsDesktop";
@@ -11,14 +12,17 @@ import LiveRig from "@/components/work/LiveRig";
 import ProjectIndex from "@/components/work/ProjectIndex";
 
 /**
- * Orchestrates the pin. Desktop: the stage pins, one viewport of scroll per
- * project, outgoing rig scales down and dims, incoming scales up and boots.
- * Persistent NN / 11 counter and a jump list ride the right edge. The iframe
- * lifecycle lives here: a rig may mount its frame only after 400ms as the
- * active project, at most two frames exist (LRU), anything two or more steps
- * from active is evicted, and a dead frame is never retried. Mobile and
- * reduced motion: no pin, no scale, no iframes — a plain vertical stack of
- * posters and label plates, which is also the no-JS state. PRD §5.4 · §6 · §3.6
+ * The machine cinema. A darkened auditorium band: each rig is the screen,
+ * pitched back a hair in real perspective, throwing a blurred, mirrored light
+ * reflection onto the floor beneath it. The screen-select console floats on
+ * the left in 3D, angled toward the screen like a projectionist's panel.
+ *
+ * The mechanics are unchanged and leak-tested: the stage pins, one viewport of
+ * scroll per project, outgoing screen dims, incoming boots. Iframe lifecycle:
+ * mount only after 400ms as the active project, hard cap 2 (LRU), evict at two
+ * steps away, dead frames never retry. Mobile and reduced motion: no pin, a
+ * vertical stack of screens with their reflections — also the no-JS state.
+ * PRD §5.4 · §6 · §3.6
  */
 export default function Work({ projects, chips }) {
   const stageRef = useRef(null);
@@ -109,7 +113,8 @@ export default function Work({ projects, chips }) {
           xPercent: -50,
           top: "50%",
           yPercent: -50,
-          width: "min(100%, calc((100vh - 240px) * 1.6))",
+          // screen + floor reflection must fit one viewport
+          width: "min(88%, calc((100vh - 330px) * 1.6))",
           margin: 0,
         });
         gsap.set(rigs.slice(1), { autoAlpha: 0, scale: 0.94 });
@@ -159,6 +164,32 @@ export default function Work({ projects, chips }) {
         // The marquee's logo buttons jump straight to a rig. PRD §5.3
         window.__rigJump = jumpTo;
 
+        // the projectionist's console: angled toward the screen, floating on a
+        // slow bob — paused whenever the auditorium is offscreen (§9)
+        const consoleEl = stage.querySelector("[data-console]");
+        let bob = null;
+        if (consoleEl) {
+          gsap.set(consoleEl, {
+            rotationY: 16,
+            transformPerspective: 900,
+            transformOrigin: "left center",
+          });
+          bob = gsap.to(consoleEl, {
+            y: 10,
+            duration: 3.4,
+            yoyo: true,
+            repeat: -1,
+            ease: "sine.inOut",
+            paused: true,
+          });
+          ScrollTrigger.create({
+            trigger: stage,
+            start: "top bottom",
+            end: "bottom top",
+            onToggle: (s) => (s.isActive ? bob.play() : bob.pause()),
+          });
+        }
+
         return () => {
           delete window.__rigJump;
           stRef.current = null;
@@ -178,11 +209,19 @@ export default function Work({ projects, chips }) {
     else window.scrollTo({ top: y, behavior: "smooth" });
   };
 
+  const REFLECTION_MASK =
+    "linear-gradient(to bottom, rgba(0,0,0,0.55), transparent 85%)";
+
   return (
-    <section id="work" className="bg-concrete py-section-half">
-      <div className="container">
+    <section id="work" className="bg-machine text-chalk">
+      <div className="container pt-section-half">
         <div className="space-y-10">
-          <SectionHeader index="02" label="SELECTED WORK" meta="11 BUILDS · ALL LIVE" />
+          <SectionHeader
+            tone="dark"
+            index="02"
+            label="SELECTED WORK"
+            meta="NOW SHOWING · 11 BUILDS"
+          />
           <RevealText
             as="h2"
             text="Live work, running right now."
@@ -190,49 +229,83 @@ export default function Work({ projects, chips }) {
           />
         </div>
 
-        <div ref={stageRef} className="relative mt-16 space-y-16 lg:space-y-0">
-          {projects.map((p, i) => (
+        <div ref={stageRef} className="relative mt-16 space-y-24 pb-20 lg:space-y-0 lg:pb-0">
+          {projects.map((p) => (
             <div key={p.slug} data-rig="">
-              <LiveRig
-                project={p}
-                chip={chips?.[p.slug]}
-                priority={false}
-                mountIframe={mounted.includes(p.slug)}
-                failed={failed.includes(p.slug)}
-                onFail={handleFail}
-              />
+              {/* the screen — pitched back a touch, like looking up at it */}
+              <div className="[perspective:1400px]">
+                <div className="[transform:rotateX(2deg)] [transform-origin:50%_100%]">
+                  <LiveRig
+                    project={p}
+                    chip={chips?.[p.slug]}
+                    priority={false}
+                    mountIframe={mounted.includes(p.slug)}
+                    failed={failed.includes(p.slug)}
+                    onFail={handleFail}
+                  />
+                </div>
+              </div>
+
+              {/* screen light reflecting off the auditorium floor */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none relative mt-3 h-24 overflow-hidden opacity-40 lg:h-32"
+                style={{ WebkitMaskImage: REFLECTION_MASK, maskImage: REFLECTION_MASK }}
+              >
+                <Image
+                  src={p.poster}
+                  alt=""
+                  fill
+                  sizes="(min-width: 1024px) 60vw, 100vw"
+                  className="-scale-y-100 object-cover object-bottom blur-[5px]"
+                />
+              </div>
             </div>
           ))}
 
-          {/* Persistent counter + jump list — pinned mode only. PRD §5.4 */}
-          <div className="pointer-events-none absolute right-0 top-1/2 z-20 hidden -translate-y-1/2 flex-col items-end gap-4 lg:flex">
-            <MonoLabel className="text-ink-mute">
-              {String(activeIndex + 1).padStart(2, "0")} /{" "}
-              {String(projects.length).padStart(2, "0")}
-            </MonoLabel>
-            <ol className="pointer-events-auto flex flex-col items-end gap-1.5">
-              {projects.map((p, i) => (
-                <li key={p.slug}>
-                  <button
-                    type="button"
-                    onClick={() => jumpTo(i)}
-                    aria-label={`Go to ${p.client}`}
-                    aria-current={i === activeIndex ? "true" : undefined}
-                    className={`-mx-2 -my-1 px-2 py-1 font-mono text-mono uppercase tracking-mono transition-colors ${
-                      i === activeIndex
-                        ? "text-ink underline decoration-signal decoration-2 underline-offset-4"
-                        : "text-ink-mute hover:text-ink"
-                    }`}
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </button>
-                </li>
-              ))}
-            </ol>
+          {/* projectionist's console — pinned mode only. PRD §5.4 */}
+          <div className="pointer-events-none absolute left-0 top-1/2 z-20 hidden -translate-y-1/2 lg:block">
+            <div
+              data-console=""
+              className="pointer-events-auto relative border border-white/20 bg-white/[0.03] px-5 py-5 backdrop-blur-md"
+              style={{
+                boxShadow:
+                  "0 24px 48px -16px rgba(0,0,0,0.7), inset 1px 1px 0 rgba(255,255,255,0.25)",
+              }}
+            >
+              <span aria-hidden="true" className="absolute right-0 top-0 h-2 w-2 bg-signal" />
+              <MonoLabel className="text-chalk">
+                {String(activeIndex + 1).padStart(2, "0")} /{" "}
+                {String(projects.length).padStart(2, "0")}
+              </MonoLabel>
+              <ol className="mt-4 flex flex-col gap-1.5">
+                {projects.map((p, i) => (
+                  <li key={p.slug}>
+                    <button
+                      type="button"
+                      onClick={() => jumpTo(i)}
+                      title={p.client}
+                      aria-label={`Go to ${p.client}`}
+                      aria-current={i === activeIndex ? "true" : undefined}
+                      className={`-mx-2 -my-1 px-2 py-1 font-mono text-mono uppercase tracking-mono transition-colors ${
+                        i === activeIndex
+                          ? "text-signal"
+                          : "text-chalk-mute hover:text-chalk"
+                      }`}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </button>
+                  </li>
+                ))}
+              </ol>
+              <MonoLabel className="mt-4 text-chalk-mute">SCREEN SELECT</MonoLabel>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div className="mt-24">
+      <div className="border-t border-rule-inv bg-concrete py-section-half text-ink">
+        <div className="container">
           <ProjectIndex
             projects={indexProjects}
             filter={sectorFilter}
