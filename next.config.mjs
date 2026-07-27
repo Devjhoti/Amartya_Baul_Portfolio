@@ -1,10 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    // Cloudinary is allowed during development only — every asset is downloaded
-    // and committed to /public before launch. PRD §8.4
-    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }],
-  },
+  // Every image is committed to /public — no remote image host in the render
+  // path. PRD §8.4
 };
 
 export default nextConfig;
