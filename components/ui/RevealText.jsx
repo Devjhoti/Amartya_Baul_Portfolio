@@ -38,7 +38,7 @@ export default function RevealText({
         const el = ref.current;
 
         if (variant === "fade") {
-          gsap.set(el, { autoAlpha: 0, visibility: "hidden" });
+          gsap.set(el, { autoAlpha: 0, visibility: "visible" });
           const tween = gsap.to(el, {
             autoAlpha: 1,
             duration: 0.9,
@@ -46,7 +46,10 @@ export default function RevealText({
             paused: true,
             delay: lineIndex * 0.08,
           });
-          const fontsReady = document.fonts?.ready ?? Promise.resolve();
+          const fontsReady = Promise.race([
+            document.fonts?.ready ?? Promise.resolve(),
+            new Promise((r) => setTimeout(r, 1200)),
+          ]);
           const play = () => fontsReady.then(() => tween.play());
           if (mode === "load") {
             if (window.__abRevealed) {
@@ -102,7 +105,10 @@ export default function RevealText({
 
         // Never start revealing before the real fonts are in — a swap mid-
         // reveal moves visible glyphs, which is exactly the shift we banned.
-        const fontsReady = document.fonts?.ready ?? Promise.resolve();
+        const fontsReady = Promise.race([
+          document.fonts?.ready ?? Promise.resolve(),
+          new Promise((r) => setTimeout(r, 1200)),
+        ]);
         const play = () => fontsReady.then(() => tween.play());
 
         if (mode === "load") {

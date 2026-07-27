@@ -65,7 +65,7 @@ export default function PortraitUnmask({ src, alt, sizes }) {
   );
 
   return (
-    <div ref={wrapRef} className="relative aspect-[4/5] overflow-hidden bg-machine">
+    <div ref={wrapRef} className="relative aspect-[4/5] w-full max-w-[420px] mx-auto lg:mx-0 overflow-hidden bg-machine">
       <Image
         src={src}
         alt={alt}

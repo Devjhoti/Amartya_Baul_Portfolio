@@ -19,16 +19,53 @@ import { REVEAL_EVENT } from "@/components/ui/RevealText";
 const MARK = "pointer-events-none absolute h-2 w-2 bg-signal";
 
 function StatCard({ value, label, accent = false, className = "" }) {
+  const renderLabel = () => {
+    if (typeof label === "string" && label.startsWith("LIVE")) {
+      return (
+        <>
+          <span className="text-signal font-semibold">LIVE</span>
+          {label.slice(4)}
+        </>
+      );
+    }
+    return label;
+  };
+
   return (
     <div
       data-card=""
-      className={`absolute z-20 border border-rule-inv bg-machine-2 px-4 py-3 text-chalk ${className}`}
+      className={`absolute z-20 overflow-hidden border border-white/20 bg-white/[0.015] backdrop-blur-md px-4 py-3 text-chalk [transform-style:preserve-3d] ${className}`}
+      style={{
+        boxShadow:
+          "0 20px 40px -10px rgba(0, 0, 0, 0.65), inset 1px 1px 0px 0px rgba(255, 255, 255, 0.35), inset -1px -1px 0px 0px rgba(255, 255, 255, 0.05)",
+      }}
     >
-      {accent ? <span aria-hidden="true" className={`${MARK} right-0 top-0`} /> : null}
-      {value ? (
-        <p className="font-display text-h3 leading-display tracking-display">{value}</p>
-      ) : null}
-      <MonoLabel className={`${value ? "mt-1" : ""} text-chalk-mute`}>{label}</MonoLabel>
+      {/* Specular glass reflection overlay */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/35 via-white/5 to-transparent opacity-75"
+        style={{
+          clipPath: "polygon(0 0, 100% 0, 45% 100%, 0% 100%)",
+        }}
+      />
+      {/* Secondary glass corner sheen highlight */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-4 -bottom-4 h-16 w-16 bg-gradient-to-tl from-white/15 to-transparent rounded-full blur-sm"
+      />
+
+      {accent ? <span aria-hidden="true" className={`${MARK} right-0 top-0 z-30`} /> : null}
+
+      <div className="relative z-10">
+        {value ? (
+          <p className="font-display text-h3 leading-display tracking-display text-signal drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+            {value}
+          </p>
+        ) : null}
+        <MonoLabel className={`${value ? "mt-1" : ""} text-chalk-mute drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]`}>
+          {renderLabel()}
+        </MonoLabel>
+      </div>
     </div>
   );
 }
@@ -61,7 +98,8 @@ export default function HeroPortrait({ photo, stats, fact }) {
         cards.forEach((c, i) =>
           gsap.set(c, { scale: 0.5, y: 24, autoAlpha: 0, z: 70 + i * 18 })
         );
-        // the signature "writes" itself in left to right
+        // the signature "writes" itself in left to right — transform must match
+        // the CSS fallback (centered, -4°) or the JS path renders it off-frame
         gsap.set(sig, { xPercent: -50, rotation: -4, z: 60, clipPath: "inset(-20% 100% -20% 0%)" });
         gsap.set(wrap, { visibility: "visible" });
         gsap.set([panel, photoEl, ...cards], { willChange: "transform, opacity" });
@@ -187,7 +225,7 @@ export default function HeroPortrait({ photo, stats, fact }) {
             </MonoLabel>
           </div>
 
-          <div ref={photoRef} className="relative z-10 px-7 sm:px-9">
+          <div ref={photoRef} className="relative z-10 w-full max-w-full px-7 sm:px-9">
             <Image
               src={photo.src}
               width={photo.width}
@@ -196,7 +234,8 @@ export default function HeroPortrait({ photo, stats, fact }) {
               priority
               quality={92}
               sizes="(min-width: 1024px) 460px, 85vw"
-              className="h-auto w-full"
+              className="h-auto w-full max-w-full"
+              style={{ maxWidth: "100%", height: "auto" }}
             />
           </div>
 
@@ -221,12 +260,11 @@ export default function HeroPortrait({ photo, stats, fact }) {
             className="-right-3 bottom-[30%] hidden max-w-[170px] sm:-right-20 sm:block"
           />
 
-          {/* signature — pen on the plate, decorative (the name is real text
-              in the plates and headline) */}
+          {/* signature — popout seal on the bottom right corner */}
           <p
             data-signature=""
             aria-hidden="true"
-            className="pointer-events-none absolute -bottom-12 left-1/2 z-30 whitespace-nowrap font-script text-[2.75rem] leading-none text-chalk [transform:translateX(-50%)_rotate(-4deg)]"
+            className="pointer-events-none absolute bottom-6 -right-3 sm:-right-8 z-30 whitespace-nowrap font-script text-[2.75rem] sm:text-[3.25rem] leading-none text-chalk drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] [transform:rotate(-26deg)]"
           >
             Amartya Baul
           </p>

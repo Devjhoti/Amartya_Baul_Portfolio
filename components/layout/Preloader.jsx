@@ -1,168 +1,123 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { gsap, useGSAP, MM } from "@/lib/gsap";
-import { EASE } from "@/lib/motion";
-import SplitText from "@/components/ui/SplitText";
-import { REVEAL_EVENT } from "@/components/ui/RevealText";
+import { useState, useEffect, useRef } from "react";
 
-/**
- * Full-screen machine panel: mono counter 000→100 bottom-left, the name
- * mask-revealing line by line centre-left, then an upward clip-path wipe.
- * The hero reveal event fires at 60% of the wipe. 2.2s max on desktop, 1.2s
- * simplified on mobile, once per session (repeat visits get a 400ms fade),
- * skipped entirely under reduced motion, and it never traps focus — there is
- * nothing focusable inside and the node unmounts when done. PRD §5.0 · §7.3
- */
-
-const SEEN_KEY = "ab-preloader-seen";
-
-const wasSeen = () => {
-  try {
-    return sessionStorage.getItem(SEEN_KEY) === "1";
-  } catch {
-    return false;
-  }
-};
-const markSeen = () => {
-  try {
-    sessionStorage.setItem(SEEN_KEY, "1");
-  } catch {
-    /* private mode — preloader will simply run again next load */
-  }
-};
+const REVEAL_EVENT = "ab:reveal";
 
 const fireReveal = () => {
+  if (typeof window === "undefined") return;
   window.__abRevealed = true;
+  document.querySelectorAll("[data-st-hide]").forEach((el) => {
+    el.style.visibility = "visible";
+  });
   window.dispatchEvent(new Event(REVEAL_EVENT));
 };
 
+/**
+ * Intro panel — purely cosmetic. Content is revealed immediately on mount.
+ * Phase 0 (0-900ms): panel visible, counter counts to 100
+ * Phase 1 (900-1500ms): panel wipes upward via CSS transition
+ * Phase 2: component unmounts
+ * PRD §5.0 · §7.3
+ */
 export default function Preloader() {
-  const ref = useRef(null);
+  // 0 = visible | 1 = wiping | 2 = gone
+  const [phase, setPhase] = useState(0);
   const counterRef = useRef(null);
-  const [done, setDone] = useState(false);
 
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
+  useEffect(() => {
+    // Fire content reveal immediately — nothing is ever gated
+    fireReveal();
 
-      mm.add(MM, (ctx) => {
-        const { isMobile, reduceMotion } = ctx.conditions;
-        const panel = ref.current;
-        if (!panel) return;
+    // Counter runs AFTER hydration, owned by React — a pre-hydration inline
+    // script mutating this text was a guaranteed hydration mismatch (#418)
+    // that took the whole page down.
+    let raf = 0;
+    let startTs = null;
+    const tick = (ts) => {
+      if (startTs === null) startTs = ts;
+      const p = Math.min((ts - startTs) / 900, 1);
+      if (counterRef.current) {
+        counterRef.current.textContent = String(Math.round(p * 100)).padStart(3, "0");
+      }
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
 
-        // Skipped entirely: the panel is already display:none via
-        // motion-reduce:hidden — just release the hero immediately.
-        if (reduceMotion) {
-          fireReveal();
-          setDone(true);
-          return;
-        }
+    const t1 = setTimeout(() => setPhase(1), 900);   // begin wipe
+    const t2 = setTimeout(() => setPhase(2), 1500);  // unmount after wipe
 
-        if (wasSeen()) {
-          fireReveal();
-          gsap.to(panel, {
-            autoAlpha: 0,
-            duration: 0.4,
-            ease: "power2.out",
-            onComplete: () => setDone(true),
-          });
-          return;
-        }
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
 
-        // §5.0 timing — 1.1 + 0.2 + 0.9 = 2.2s desktop; simplified 1.2s mobile.
-        const t = isMobile
-          ? { count: 0.6, hold: 0.1, wipe: 0.5 }
-          : { count: 1.1, hold: 0.2, wipe: 0.9 };
-
-        const chars = panel.querySelectorAll(".st-char");
-        const obj = { v: 0 };
-
-        gsap.set(chars, { yPercent: 110, willChange: "transform" });
-        gsap.set(panel.querySelectorAll("[data-st-hide]"), { visibility: "visible" });
-
-        const tl = gsap.timeline({
-          onComplete: () => {
-            markSeen();
-            setDone(true);
-          },
-        });
-
-        tl.to(
-          obj,
-          {
-            v: 100,
-            duration: t.count,
-            ease: "none",
-            onUpdate: () => {
-              counterRef.current.textContent = String(Math.round(obj.v)).padStart(3, "0");
-            },
-          },
-          0
-        );
-        // The name reveals only once the display font is really in — revealing
-        // fallback glyphs and swapping them mid-panel is a measurable layout
-        // shift. On slow connections the counter carries the panel alone.
-        const fontsReady = document.fonts?.ready ?? Promise.resolve();
-        fontsReady.then(() => {
-          if (!panel.isConnected) return;
-          gsap.to(chars, {
-            yPercent: 0,
-            duration: 0.8,
-            ease: EASE.out,
-            stagger: 0.03,
-            onComplete: () => gsap.set(chars, { clearProps: "willChange" }),
-          });
-        });
-        tl.to({}, { duration: t.hold }, t.count);
-        tl.set(panel, { willChange: "clip-path" });
-        tl.to(panel, {
-          clipPath: "inset(0% 0% 100% 0%)",
-          duration: t.wipe,
-          ease: EASE.inOut,
-        });
-        // Hero begins at 60% of the wipe. PRD §5.0
-        tl.call(fireReveal, null, `-=${t.wipe * 0.4}`);
-      });
-    },
-    { scope: ref }
-  );
-
-  if (done) return null;
+  if (phase === 2) return null;
 
   return (
-    <div
-      ref={ref}
-      role="presentation"
-      aria-hidden="true"
-      className="ab-preloader fixed inset-0 z-[150] flex flex-col justify-center bg-machine px-[var(--page-margin)] text-chalk motion-reduce:hidden"
-      style={{ clipPath: "inset(0% 0% 0% 0%)" }}
-    >
+    <>
+      <style>{`
+        .ab-pre {
+          position: fixed;
+          inset: 0;
+          z-index: 150;
+          background: var(--machine);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 0 var(--page-margin);
+          clip-path: inset(0% 0% 0% 0%);
+        }
+        .ab-pre.ab-pre--wipe {
+          clip-path: inset(0% 0% 100% 0%);
+          transition: clip-path 0.55s cubic-bezier(0.76, 0, 0.24, 1);
+        }
+        .ab-pre-name {
+          font-family: var(--font-archivo), system-ui, sans-serif;
+          font-weight: 650;
+          font-stretch: 110%;
+          letter-spacing: -0.03em;
+          line-height: 0.88;
+          font-size: var(--fs-display);
+          color: var(--chalk);
+          text-transform: uppercase;
+          margin: 0;
+        }
+        .ab-pre-counter {
+          position: absolute;
+          bottom: 2rem;
+          left: var(--page-margin);
+          font-family: var(--font-martian), ui-monospace, monospace;
+          font-size: 0.6875rem;
+          letter-spacing: 0.14em;
+          color: var(--chalk-mute);
+          margin: 0;
+          font-variant-numeric: tabular-nums;
+        }
+        /* reduced motion: the cosmetic panel is skipped entirely */
+        @media (prefers-reduced-motion: reduce) {
+          .ab-pre { display: none; }
+        }
+      `}</style>
+
       <noscript>
-        <style>{`.ab-preloader{display:none}`}</style>
+        <style>{`.ab-pre{display:none}`}</style>
       </noscript>
 
-      <div>
-        <SplitText
-          text="AMARTYA"
-          as="p"
-          data-st-hide=""
-          className="block font-display text-display uppercase leading-display tracking-display"
-        />
-        <SplitText
-          text="BAUL"
-          as="p"
-          data-st-hide=""
-          className="block font-display text-display uppercase leading-display tracking-display"
-        />
-      </div>
-
-      <p
-        ref={counterRef}
-        className="absolute bottom-8 left-[var(--page-margin)] font-mono text-mono tracking-mono text-chalk-mute"
+      <div
+        aria-hidden="true"
+        role="presentation"
+        className={`ab-pre${phase === 1 ? " ab-pre--wipe" : ""}`}
       >
-        000
-      </p>
-    </div>
+        <div>
+          <p className="ab-pre-name">AMARTYA</p>
+          <p className="ab-pre-name">BAUL</p>
+        </div>
+
+        <p className="ab-pre-counter" ref={counterRef}>000</p>
+      </div>
+    </>
   );
 }
