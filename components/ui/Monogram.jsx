@@ -13,22 +13,22 @@ export default function Monogram({ className = "", framed = true, mark = framed 
         <rect x="2" y="2" width="124" height="124"
               fill="none" stroke="currentColor" strokeOpacity="0.22" strokeWidth="2" />
       )}
-      {mark && (
-        /* registration mark — always safety yellow, in both grounds */
-        <rect x="108" y="108" width="10" height="10" fill="#E5C11F" />
-      )}
-
       <g stroke="currentColor" strokeWidth="14"
          strokeLinecap="butt" strokeLinejoin="miter" fill="none">
         {/* shared stem */}
         <path d="M56 20 L56 108" />
         {/* A — crossbar */}
         <path d="M31 84 L56 84" />
-        {/* B — upper bowl */}
-        <path d="M56 20 L92 20 L92 57 L56 57" />
-        {/* B — lower bowl */}
-        <path d="M56 57 L104 57 L104 108 L56 108" />
+        {/* B — both bowls on one axis, equal width, single right edge */}
+        <path d="M56 20 L98 20 L98 57 L56 57" />
+        <path d="M56 57 L98 57 L98 108 L56 108" />
       </g>
+
+      {mark && (
+        /* registration mark — safety yellow, seated inside the border at the
+           B's bottom-right corner */
+        <rect x="93" y="103" width="10" height="10" fill="#E5C11F" />
+      )}
 
       {/* A — diagonal as a filled polygon: solid at the apex, flat at the
           baseline (closes the two open notches of the stroked original) */}
