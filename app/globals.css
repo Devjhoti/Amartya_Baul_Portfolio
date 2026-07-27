@@ -23,7 +23,9 @@
   --ink: #141815;
   --ink-mute: #4c524d;
   --chalk: #e8eae5;
-  --chalk-mute: #8b948c;
+  /* chalk-mute lifted from #8B948C (4.46:1 on machine-2, failed WCAG) to
+     #96A098: 5.17:1 on machine-2, 6.0:1 on machine. §8.6 */
+  --chalk-mute: #96a098;
 
   /* Signal — the only accent. Under 5% of any viewport. */
   --signal: #e5c11f;

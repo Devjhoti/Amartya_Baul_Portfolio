@@ -15,6 +15,9 @@
 
 export const assets = {
   profile: "/portrait.jpg",
+  // hero cutout (transparent), trimmed + webp'd from the supplied capture —
+  // source was 448×557; a higher-res cutout will sharpen the hero. §8.4
+  portraitCutout: { src: "/portrait-cutout.webp", width: 372, height: 521 },
 
   posters: {
     "ids-group": "/posters/ids-group.webp",
