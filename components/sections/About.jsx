@@ -1,8 +1,8 @@
-import Image from "next/image";
 import SectionHeader from "@/components/ui/SectionHeader";
 import MonoLabel from "@/components/ui/MonoLabel";
 import RevealText from "@/components/ui/RevealText";
 import Counter from "@/components/ui/Counter";
+import PortraitUnmask from "@/components/ui/PortraitUnmask";
 import { getProfile, getAssets } from "@/lib/content";
 
 /**
@@ -20,15 +20,11 @@ export default async function About() {
 
         <div className="grid grid-cols-1 gap-y-12 lg:grid-cols-12 lg:gap-x-6">
           <div className="lg:col-span-5">
-            <div className="relative aspect-[4/5] overflow-hidden bg-machine">
-              <Image
-                src={assets.profile}
-                alt="Amartya Baul"
-                fill
-                sizes="(min-width: 1024px) 40vw, 100vw"
-                className="object-cover grayscale mix-blend-luminosity"
-              />
-            </div>
+            <PortraitUnmask
+              src={assets.profile}
+              alt="Amartya Baul"
+              sizes="(min-width: 1024px) 40vw, 100vw"
+            />
             <MonoLabel className="mt-3 text-ink-mute">
               AMARTYA BAUL — FULL-STACK DEVELOPER
             </MonoLabel>

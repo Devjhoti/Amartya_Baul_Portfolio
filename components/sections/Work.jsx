@@ -133,8 +133,11 @@ export default function Work({ projects }) {
             swapTo(Math.round(self.progress * (projects.length - 1))),
         });
         stRef.current = st;
+        // The marquee's logo buttons jump straight to a rig. PRD §5.3
+        window.__rigJump = jumpTo;
 
         return () => {
+          delete window.__rigJump;
           stRef.current = null;
           idxRef.current = 0;
           setActiveIndex(0);

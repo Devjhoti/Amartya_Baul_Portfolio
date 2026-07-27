@@ -4,6 +4,7 @@ import { getProfile } from "@/lib/content";
 import SmoothScroll from "@/components/layout/SmoothScroll";
 import Cursor from "@/components/layout/Cursor";
 import Preloader from "@/components/layout/Preloader";
+import PageTransition from "@/components/layout/PageTransition";
 import "./globals.css";
 
 /**
@@ -77,6 +78,7 @@ export default function RootLayout({ children }) {
         {children}
         <SmoothScroll />
         <Cursor />
+        <PageTransition />
         <Preloader />
       </body>
     </html>
