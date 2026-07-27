@@ -28,6 +28,8 @@ export default function SmoothScroll() {
       const tick = (time) => lenis.raf(time * 1000);
       gsap.ticker.add(tick);
       gsap.ticker.lagSmoothing(0);
+      // Programmatic scrolls (rig jump list, back-to-top) ride the same easing.
+      window.__lenis = lenis;
 
       const onClick = (e) => {
         const link = e.target.closest?.('a[href^="#"]');
@@ -43,6 +45,7 @@ export default function SmoothScroll() {
         document.removeEventListener("click", onClick);
         gsap.ticker.remove(tick);
         lenis.destroy();
+        delete window.__lenis;
       };
     });
   });
