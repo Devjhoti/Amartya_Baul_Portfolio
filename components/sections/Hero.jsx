@@ -28,8 +28,8 @@ export default async function Hero() {
           </MonoLabel>
         </div>
 
-        <div className="grid flex-1 grid-cols-1 items-end gap-x-6 gap-y-14 py-16 lg:grid-cols-12">
-          <h1 className="text-hero uppercase lg:col-span-8">
+        <div className="grid flex-1 grid-cols-1 items-end gap-x-6 gap-y-12 py-10 lg:grid-cols-12">
+          <h1 className="text-hero uppercase lg:col-span-12">
             {profile.headline.map((line, i) => (
               <RevealText
                 key={line}
@@ -49,7 +49,7 @@ export default async function Hero() {
             variant="fade"
             mode="load"
             lineIndex={4}
-            className="max-w-[36ch] space-y-9 lg:col-span-4 lg:justify-self-end lg:pb-2"
+            className="max-w-[36ch] space-y-9 lg:col-span-5 lg:col-start-8 lg:justify-self-end"
           >
             <p className="text-body text-chalk-mute">{profile.intro}</p>
             <div className="flex flex-wrap items-center gap-x-10 gap-y-6">

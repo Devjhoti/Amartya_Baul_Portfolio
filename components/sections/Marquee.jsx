@@ -118,20 +118,30 @@ export default function Marquee({ projects, agency }) {
         const row1 = gsap.fromTo(
           tracks[0],
           { xPercent: 0 },
-          { xPercent: -50, duration: 28, ease: "none", repeat: -1 }
+          { xPercent: -50, duration: 28, ease: "none", repeat: -1, paused: true }
         );
         const row2 = gsap.fromTo(
           tracks[1],
           { xPercent: -50 },
-          { xPercent: 0, duration: 28, ease: "none", repeat: -1 }
+          { xPercent: 0, duration: 28, ease: "none", repeat: -1, paused: true }
         );
         row2.timeScale(0.82);
+
+        // Offscreen animations are paused — the marquee only ticks while it is
+        // actually in the viewport. PRD §9
+        let visible = false;
+        const io = new IntersectionObserver(([entry]) => {
+          visible = entry.isIntersecting;
+          [row1, row2].forEach((t) => (visible ? t.play() : t.pause()));
+        });
+        io.observe(rootRef.current);
 
         if (isDesktop) {
           // scroll velocity → timeScale, easing back to base. PRD §5.3
           const ts1 = gsap.quickTo(row1, "timeScale", { duration: 0.5, ease: "power2.out" });
           const ts2 = gsap.quickTo(row2, "timeScale", { duration: 0.5, ease: "power2.out" });
           const sample = () => {
+            if (!visible) return;
             const v = Math.abs(window.__lenis?.velocity ?? 0);
             const boost = gsap.utils.clamp(0, 2.5, v / 45);
             ts1(1 + boost);
@@ -139,11 +149,15 @@ export default function Marquee({ projects, agency }) {
           };
           gsap.ticker.add(sample);
           return () => {
+            io.disconnect();
             gsap.ticker.remove(sample);
             gsap.set(tracks, { clearProps: "willChange" });
           };
         }
-        return () => gsap.set(tracks, { clearProps: "willChange" });
+        return () => {
+          io.disconnect();
+          gsap.set(tracks, { clearProps: "willChange" });
+        };
       });
     },
     { scope: rootRef }

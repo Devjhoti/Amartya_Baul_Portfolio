@@ -77,13 +77,15 @@ export const fragmentShader = /* glsl */ `
     vec3 lift = vec3(0.149, 0.180, 0.161);   // #262e29
     vec3 high = vec3(0.169, 0.204, 0.184);   // #2b342f
 
-    vec3 col = mix(base, lift, smoothstep(0.35, 0.75, n));
-    col = mix(col, high, smoothstep(0.78, 0.97, n) * 0.5);
+    vec3 col = mix(base, lift, smoothstep(0.35, 0.80, n));
+    col = mix(col, high, smoothstep(0.80, 0.98, n) * 0.35);
     col = mix(deep, col, smoothstep(0.02, 0.35, n) * 0.85 + 0.15);
+    // dial the whole field back toward the base enamel — atmosphere, not a graphic
+    col = mix(base, col, 0.5);
 
     // the one sanctioned radial vignette, barely there
     float d = distance(uv, vec2(0.5, 0.42));
-    col *= 1.0 - 0.22 * smoothstep(0.45, 0.95, d);
+    col *= 1.0 - 0.16 * smoothstep(0.45, 0.95, d);
 
     gl_FragColor = vec4(col, 1.0);
   }
