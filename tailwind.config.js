@@ -39,6 +39,7 @@ module.exports = {
         display: ["var(--font-archivo)", "system-ui", "sans-serif"],
         body: ["var(--font-satoshi)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-martian)", "ui-monospace", "SFMono-Regular", "monospace"],
+        script: ["var(--font-script)", "cursive"],
       },
       fontSize: {
         hero: "var(--fs-hero)",

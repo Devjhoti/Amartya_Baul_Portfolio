@@ -53,12 +53,16 @@ export default function HeroPortrait({ photo, stats, fact }) {
         const photoEl = photoRef.current;
         const cards = [...wrap.querySelectorAll("[data-card]")];
 
+        const sig = wrap.querySelector("[data-signature]");
+
         // initial states first, then unhide the rig (same tick, no flash)
         gsap.set(panel, { clipPath: "inset(100% 0% 0% 0%)" });
         gsap.set(photoEl, { yPercent: 16, scale: 0.92, autoAlpha: 0, z: 50 });
         cards.forEach((c, i) =>
           gsap.set(c, { scale: 0.5, y: 24, autoAlpha: 0, z: 70 + i * 18 })
         );
+        // the signature "writes" itself in left to right
+        gsap.set(sig, { xPercent: -50, rotation: -4, z: 60, clipPath: "inset(-20% 100% -20% 0%)" });
         gsap.set(wrap, { visibility: "visible" });
         gsap.set([panel, photoEl, ...cards], { willChange: "transform, opacity" });
 
@@ -93,7 +97,8 @@ export default function HeroPortrait({ photo, stats, fact }) {
             cards,
             { scale: 1, y: 0, autoAlpha: 1, duration: 0.7, ease: "back.out(2)", stagger: 0.09 },
             "-=0.5"
-          );
+          )
+          .to(sig, { clipPath: "inset(-20% 0% -20% 0%)", duration: 0.9, ease: "power2.inOut" }, "-=0.3");
 
         const play = () => tl.play();
         let fallback = null;
@@ -121,9 +126,16 @@ export default function HeroPortrait({ photo, stats, fact }) {
           };
           window.addEventListener("pointermove", onMove, { passive: true });
 
-          // scroll parallax — layers slide at different rates
+          // scroll parallax — layers slide at different rates. Trigger is the
+          // hero section from "top top": progress is exactly 0 at load, so the
+          // photo sits flush on its panel until the user actually scrolls.
           const scrub = gsap.timeline({
-            scrollTrigger: { trigger: wrap, start: "top 80%", end: "bottom top", scrub: 0.4 },
+            scrollTrigger: {
+              trigger: wrap.closest("section") ?? wrap,
+              start: "top top",
+              end: "bottom top",
+              scrub: 0.4,
+            },
           });
           scrub
             .to(photoEl, { yPercent: -9 }, 0)
@@ -191,22 +203,32 @@ export default function HeroPortrait({ photo, stats, fact }) {
             value={stats[0]?.value}
             label={stats[0]?.label}
             accent
-            className="-left-2 top-[26%] sm:-left-5"
+            className="-left-3 top-[22%] sm:-left-16"
           />
           <StatCard
             value={stats[2]?.value}
             label={stats[2]?.label}
-            className="-right-2 top-[12%] sm:-right-5"
+            className="-right-3 top-[7%] sm:-right-16"
           />
           <StatCard
             value={stats[1]?.value}
             label={stats[1]?.label}
-            className="-left-3 bottom-[9%] sm:-left-6"
+            className="-left-4 bottom-[6%] sm:-left-20"
           />
           <StatCard
             label={fact}
-            className="-right-2 bottom-[26%] hidden max-w-[170px] sm:-right-6 sm:block"
+            className="-right-3 bottom-[30%] hidden max-w-[170px] sm:-right-20 sm:block"
           />
+
+          {/* signature — pen on the plate, decorative (the name is real text
+              in the plates and headline) */}
+          <p
+            data-signature=""
+            aria-hidden="true"
+            className="pointer-events-none absolute -bottom-8 left-1/2 z-30 whitespace-nowrap font-script text-[2.75rem] leading-none text-chalk [transform:translateX(-50%)_rotate(-4deg)]"
+          >
+            Amartya Baul
+          </p>
         </div>
       </div>
     </div>

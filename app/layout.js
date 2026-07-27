@@ -1,4 +1,4 @@
-import { Archivo, Martian_Mono } from "next/font/google";
+import { Archivo, Martian_Mono, Great_Vibes } from "next/font/google";
 import localFont from "next/font/local";
 import { getProfile } from "@/lib/content";
 import { SITE_URL } from "@/lib/seo";
@@ -32,6 +32,15 @@ const martianMono = Martian_Mono({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-martian",
+});
+
+// Script — the hero signature only. One weight, not preloaded, decorative.
+const greatVibes = Great_Vibes({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-script",
+  preload: false,
 });
 
 // Body/UI — Satoshi, self-hosted. Files land in /public/fonts via
@@ -112,7 +121,7 @@ export default async function RootLayout({ children }) {
       // guard for reveal text) — an intentional pre-hydration mutation of this
       // one element, so React must not compare its attributes.
       suppressHydrationWarning
-      className={`${archivo.variable} ${satoshi.variable} ${martianMono.variable}`}
+      className={`${archivo.variable} ${satoshi.variable} ${martianMono.variable} ${greatVibes.variable}`}
     >
       <body className="bg-concrete font-body text-ink">
         {/* Runs before anything below paints: gates the pre-hydration hiding of
