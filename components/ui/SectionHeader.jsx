@@ -21,6 +21,8 @@ export default function SectionHeader({
 
   return (
     <div
+      data-plate-index={index}
+      data-plate-label={label}
       className={`flex items-baseline justify-between gap-6 border-t ${rule} pt-4 ${className}`}
     >
       <MonoLabel as={headingAs}>

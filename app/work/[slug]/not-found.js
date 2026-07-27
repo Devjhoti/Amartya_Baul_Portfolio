@@ -17,7 +17,7 @@ export default function CaseNotFound() {
           The eleven that do exist are all live and listed in the work section.
         </p>
         <MonoLabel as="p">
-          <Link href="/#work" className="underline decoration-1 underline-offset-8 transition-colors hover:decoration-signal">
+          <Link href="/#work" className="link-draw">
             OPEN THE PROJECT INDEX
           </Link>
         </MonoLabel>

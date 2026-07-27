@@ -37,7 +37,7 @@ export default async function Contact() {
               <MonoLabel className="text-chalk-mute">EMAIL</MonoLabel>
               <a
                 href={`mailto:${email}`}
-                className="mt-2 inline-block break-all text-h3 font-medium underline decoration-1 underline-offset-8 transition-colors hover:decoration-signal"
+                className="link-draw mt-2 inline-block break-all text-h3 font-medium"
               >
                 {email}
               </a>
@@ -48,7 +48,7 @@ export default async function Contact() {
                 href={`https://wa.me/${whatsappIntl.replace("+", "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 inline-block text-h3 font-medium underline decoration-1 underline-offset-8 transition-colors hover:decoration-signal"
+                className="link-draw mt-2 inline-block text-h3 font-medium"
               >
                 {whatsapp}
               </a>

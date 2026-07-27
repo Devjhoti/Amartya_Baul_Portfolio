@@ -40,6 +40,7 @@ still needing Amartya's input is marked `NEEDS_AMARTYA` in the data files.
 npm run fetch-logos        # re-pull client logos (archival; already committed)
 npm run fetch-fonts        # re-pull Satoshi woff2 into public/fonts
 npm run generate-favicons  # re-render the favicon set from the monogram
+npm run generate-og        # re-render OG cards (home + 11 case studies; needs local Chrome)
 ```
 
 ## Deploy

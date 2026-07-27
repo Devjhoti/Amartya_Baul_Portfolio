@@ -6,6 +6,7 @@ import SmoothScroll from "@/components/layout/SmoothScroll";
 import Cursor from "@/components/layout/Cursor";
 import Preloader from "@/components/layout/Preloader";
 import PageTransition from "@/components/layout/PageTransition";
+import ScrollProgress from "@/components/layout/ScrollProgress";
 import "./globals.css";
 
 /**
@@ -127,6 +128,7 @@ export default async function RootLayout({ children }) {
         />
         {children}
         <SmoothScroll />
+        <ScrollProgress />
         <Cursor />
         <PageTransition />
         <Preloader />

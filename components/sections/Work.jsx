@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { gsap, ScrollTrigger, useGSAP, MM } from "@/lib/gsap";
 import { EASE } from "@/lib/motion";
 import { useIsDesktop, usePrefersReducedMotion } from "@/lib/useIsDesktop";
@@ -27,6 +27,7 @@ export default function Work({ projects, chips }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [mounted, setMounted] = useState([]); // LRU of slugs, most recent last
   const [failed, setFailed] = useState([]);
+  const [sectorFilter, setSectorFilter] = useState(null);
   const isDesktop = useIsDesktop();
   const reduceMotion = usePrefersReducedMotion();
   const allowIframe = isDesktop && !reduceMotion;
@@ -64,6 +65,28 @@ export default function Work({ projects, chips }) {
     setFailed((f) => (f.includes(slug) ? f : [...f, slug]));
     setMounted((m) => m.filter((s) => s !== slug));
   }, []);
+
+  // Industries cells filter the index table down here. PRD §5.8
+  useEffect(() => {
+    window.__filterIndex = (sector) => {
+      setSectorFilter((cur) => (cur === sector ? null : sector));
+      const el = document.getElementById("project-index");
+      if (!el) return;
+      if (window.__lenis) window.__lenis.scrollTo(el);
+      else el.scrollIntoView({ behavior: "smooth" });
+    };
+    return () => {
+      delete window.__filterIndex;
+    };
+  }, []);
+
+  const numbered = useMemo(
+    () => projects.map((p, i) => ({ ...p, no: i + 1 })),
+    [projects]
+  );
+  const indexProjects = sectorFilter
+    ? numbered.filter((p) => p.sector === sectorFilter)
+    : numbered;
 
   // The pin. Everything here exists only in the isDesktop && !reduceMotion
   // branch and reverts wholesale on breakpoint change or unmount.
@@ -210,7 +233,11 @@ export default function Work({ projects, chips }) {
         </div>
 
         <div className="mt-24">
-          <ProjectIndex projects={projects} />
+          <ProjectIndex
+            projects={indexProjects}
+            filter={sectorFilter}
+            onClear={() => setSectorFilter(null)}
+          />
         </div>
       </div>
     </section>

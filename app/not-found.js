@@ -17,7 +17,7 @@ export default function NotFound() {
           The address may be mistyped, or the page may have moved. Everything that exists is reachable from the home page.
         </p>
         <MonoLabel as="p">
-          <Link href="/" className="underline decoration-1 underline-offset-8 transition-colors hover:decoration-signal">
+          <Link href="/" className="link-draw">
             GO TO THE HOME PAGE
           </Link>
         </MonoLabel>

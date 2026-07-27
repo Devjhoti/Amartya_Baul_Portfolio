@@ -9,7 +9,8 @@
     "lint": "next lint",
     "fetch-logos": "node scripts/fetch-logos.mjs",
     "fetch-fonts": "node scripts/fetch-fonts.mjs",
-    "generate-favicons": "node scripts/generate-favicons.mjs"
+    "generate-favicons": "node scripts/generate-favicons.mjs",
+    "generate-og": "node scripts/generate-og.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

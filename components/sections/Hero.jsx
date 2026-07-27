@@ -58,10 +58,7 @@ export default async function Hero() {
                   Get in touch <span aria-hidden="true">→</span>
                 </Button>
               </MagneticWrap>
-              <a
-                href="#work"
-                className="font-mono text-mono uppercase tracking-mono underline decoration-1 underline-offset-8 transition-colors hover:decoration-signal"
-              >
+              <a href="#work" className="link-draw font-mono text-mono uppercase tracking-mono">
                 See the work
               </a>
             </div>

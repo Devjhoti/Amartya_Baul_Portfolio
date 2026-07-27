@@ -1,6 +1,7 @@
 import SectionHeader from "@/components/ui/SectionHeader";
 import MonoLabel from "@/components/ui/MonoLabel";
 import SectorChip from "@/components/ui/SectorChip";
+import IndustryCell from "@/components/ui/IndustryCell";
 import { getProjects } from "@/lib/content";
 
 /**
@@ -30,24 +31,26 @@ export default async function Industries() {
           {projects.map((p) => {
             const n = counts[p.sector];
             return (
-              <li
-                key={p.slug}
-                className="group flex flex-col gap-6 border-b border-r border-rule p-6"
-              >
-                <SectorChip
-                  sector={p.chip}
-                  size={88}
-                  label={`${p.sector} material sample`}
-                  className="transition-[filter] group-hover:grayscale"
-                />
-                <div>
-                  <MonoLabel className="transition-colors group-hover:text-signal">
-                    {p.sector}
-                  </MonoLabel>
-                  <p className="mt-1 text-small text-ink-mute">
-                    {n} build{n > 1 ? "s" : ""}
-                  </p>
-                </div>
+              <li key={p.slug} className="border-b border-r border-rule">
+                <IndustryCell
+                  sector={p.sector}
+                  className="group flex h-full w-full flex-col gap-6 p-6 text-left"
+                >
+                  <SectorChip
+                    sector={p.chip}
+                    size={88}
+                    label={`${p.sector} material sample`}
+                    className="transition-[filter] group-hover:grayscale"
+                  />
+                  <span className="block">
+                    <MonoLabel as="span" className="block transition-colors group-hover:text-signal">
+                      {p.sector}
+                    </MonoLabel>
+                    <span className="mt-1 block text-small text-ink-mute">
+                      {n} build{n > 1 ? "s" : ""}
+                    </span>
+                  </span>
+                </IndustryCell>
               </li>
             );
           })}
