@@ -25,9 +25,9 @@ export default function Monogram({ className = "", framed = true, mark = framed 
       </g>
 
       {mark && (
-        /* registration mark — safety yellow, seated inside the border at the
-           B's bottom-right corner */
-        <rect x="93" y="103" width="10" height="10" fill="#E5C11F" />
+        /* registration mark — safety yellow, flush with the B's outer
+           bottom-right corner: the corner block itself turns signal */
+        <rect x="95" y="105" width="10" height="10" fill="#E5C11F" />
       )}
 
       {/* A — diagonal as a filled polygon: solid at the apex, flat at the

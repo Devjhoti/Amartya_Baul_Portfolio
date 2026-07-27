@@ -101,7 +101,7 @@ export default function HeroPortrait({ photo, stats, fact }) {
         // the signature "writes" itself in left to right; it lives inside the
         // photo layer, so position/parallax ride along automatically — only
         // rotation (matching the CSS fallback) and the write-on clip are set
-        gsap.set(sig, { rotation: -18, clipPath: "inset(-20% 100% -20% 0%)" });
+        gsap.set(sig, { rotation: -18, clipPath: "inset(-25% 100% -25% -10%)" });
         gsap.set(wrap, { visibility: "visible" });
         gsap.set([panel, photoEl, ...cards], { willChange: "transform, opacity" });
 
@@ -137,7 +137,18 @@ export default function HeroPortrait({ photo, stats, fact }) {
             { scale: 1, y: 0, autoAlpha: 1, duration: 0.7, ease: "back.out(2)", stagger: 0.09 },
             "-=0.5"
           )
-          .to(sig, { clipPath: "inset(-20% 0% -20% 0%)", duration: 0.9, ease: "power2.inOut" }, "-=0.3");
+          .to(
+            sig,
+            {
+              clipPath: "inset(-25% -12% -25% -10%)",
+              duration: 0.9,
+              ease: "power2.inOut",
+              // drop the clip entirely once written — script flourishes (the
+              // Baul "l") overflow the text box and must never stay cropped
+              onComplete: () => gsap.set(sig, { clearProps: "clipPath" }),
+            },
+            "-=0.3"
+          );
 
         const play = () => tl.play();
         let fallback = null;
