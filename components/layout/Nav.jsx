@@ -89,7 +89,7 @@ export default function Nav() {
         </a>
         <div className="container flex items-center justify-between py-6">
           <a href="#top" aria-label="Amartya Baul — top of page" className="block">
-            <Monogram framed={false} className="h-8 w-8" />
+            <Monogram framed={false} mark className="h-11 w-11" />
           </a>
           <nav aria-label="Primary" className="flex items-center gap-10">
             <ul className="hidden items-center gap-8 md:flex">

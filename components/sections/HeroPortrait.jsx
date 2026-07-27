@@ -101,7 +101,7 @@ export default function HeroPortrait({ photo, stats, fact }) {
         // the signature "writes" itself in left to right; it lives inside the
         // photo layer, so position/parallax ride along automatically — only
         // rotation (matching the CSS fallback) and the write-on clip are set
-        gsap.set(sig, { rotation: -14, clipPath: "inset(-20% 100% -20% 0%)" });
+        gsap.set(sig, { rotation: -18, clipPath: "inset(-20% 100% -20% 0%)" });
         gsap.set(wrap, { visibility: "visible" });
         gsap.set([panel, photoEl, ...cards], { willChange: "transform, opacity" });
 
@@ -244,7 +244,7 @@ export default function HeroPortrait({ photo, stats, fact }) {
             <p
               data-signature=""
               aria-hidden="true"
-              className="pointer-events-none absolute bottom-[10%] right-0 z-20 whitespace-nowrap font-script text-[2.6rem] leading-none text-chalk sm:text-[3rem] [transform:rotate(-14deg)]"
+              className="pointer-events-none absolute bottom-[4%] right-0 z-20 whitespace-nowrap font-script text-[2.6rem] leading-none text-chalk sm:text-[3rem] [transform:rotate(-18deg)]"
               style={{
                 textShadow:
                   "0 2px 12px rgba(0,0,0,0.9), 0 0 6px rgba(232,234,229,0.55), 0 0 24px rgba(232,234,229,0.35)",
