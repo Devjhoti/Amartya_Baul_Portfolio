@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────────
+   MACHINE ROOM — design tokens. PRD §3.3 (colour) · §3.4 (type) · §3.5 (layout)
+   These custom properties are the single source of truth; tailwind.config.js
+   maps every one of them to a utility. Never write a raw hex in a component.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Ground */
+  --concrete: #d5d7d0;
+  --concrete-2: #c6c9c1;
+
+  /* Machine */
+  --machine: #1c221e;
+  --machine-2: #262e29;
+  --machine-3: #313a34;
+
+  /* Ink */
+  --ink: #141815;
+  --ink-mute: #666e68;
+  --chalk: #e8eae5;
+  --chalk-mute: #8b948c;
+
+  /* Signal — the only accent. Under 5% of any viewport. */
+  --signal: #e5c11f;
+  --signal-dim: #9c8615;
+
+  /* Structure */
+  --rule: rgba(20, 24, 21, 0.14);
+  --rule-inv: rgba(232, 234, 229, 0.14);
+
+  /* Fluid type scale — PRD §3.4 */
+  --fs-hero: clamp(3.25rem, 11.5vw, 12rem);
+  --fs-display: clamp(2.5rem, 6vw, 5.5rem);
+  --fs-h2: clamp(1.75rem, 3.2vw, 3rem);
+  --fs-h3: clamp(1.25rem, 1.8vw, 1.6rem);
+  --fs-body: clamp(1rem, 1.05vw, 1.125rem);
+  --fs-small: 0.875rem;
+  --fs-mono: 0.6875rem; /* 11px */
+
+  /* Layout rhythm — PRD §3.5 */
+  --page-margin: clamp(20px, 4.5vw, 80px);
+  --section-gap: clamp(96px, 14vh, 200px);
+}
+
+@layer base {
+  body {
+    background-color: var(--concrete);
+    color: var(--ink);
+    font-family: var(--font-satoshi), ui-sans-serif, system-ui, sans-serif;
+    font-size: var(--fs-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Display face — headings only. Archivo, width 110, tracking -0.03em,
+     leading 0.88. AGENTS.md §Type */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-archivo), system-ui, sans-serif;
+    font-weight: 650;
+    font-stretch: 110%;
+    letter-spacing: -0.03em;
+    line-height: 0.88;
+  }
+
+  /* Focus is always visible and always safety yellow. PRD §8.6 */
+  :focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--signal);
+    color: var(--ink);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Grain overlay — one of exactly two gradients/textures allowed site-wide.
+   Same feTurbulence primitive as HeroFallback.jsx, so the page grain and the
+   hero atmosphere read as one material. Inline data URI, no image request.
+   PRD §3.3 (gradient policy) · §2.7
+   ───────────────────────────────────────────────────────────────────────── */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 260px 260px;
+}
