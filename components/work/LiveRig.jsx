@@ -17,7 +17,7 @@ import LabelPlate from "./LabelPlate";
  */
 const BOOT_TIMEOUT = 6000;
 
-export default function LiveRig({ project, chip, mountIframe, failed, priority, onFail }) {
+export default function LiveRig({ project, mountIframe, failed, priority, onFail }) {
   const screenRef = useRef(null);
   const frameWrapRef = useRef(null);
   const posterRef = useRef(null);
@@ -109,7 +109,7 @@ export default function LiveRig({ project, chip, mountIframe, failed, priority, 
             </div>
           </div>
         }
-        plate={<LabelPlate project={project} chip={chip} status={status} scramble={status !== null} />}
+        plate={<LabelPlate project={project} status={status} scramble={status !== null} />}
       />
     </a>
   );

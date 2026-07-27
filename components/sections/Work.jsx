@@ -8,6 +8,8 @@ import { useIsDesktop, usePrefersReducedMotion } from "@/lib/useIsDesktop";
 import SectionHeader from "@/components/ui/SectionHeader";
 import MonoLabel from "@/components/ui/MonoLabel";
 import RevealText from "@/components/ui/RevealText";
+import ScrambleText from "@/components/ui/ScrambleText";
+import TechIcon from "@/components/ui/TechIcon";
 import LiveRig from "@/components/work/LiveRig";
 import ProjectIndex from "@/components/work/ProjectIndex";
 
@@ -24,7 +26,7 @@ import ProjectIndex from "@/components/work/ProjectIndex";
  * vertical stack of screens with their reflections — also the no-JS state.
  * PRD §5.4 · §6 · §3.6
  */
-export default function Work({ projects, chips }) {
+export default function Work({ projects }) {
   const stageRef = useRef(null);
   const stRef = useRef(null);
   const idxRef = useRef(0);
@@ -164,29 +166,30 @@ export default function Work({ projects, chips }) {
         // The marquee's logo buttons jump straight to a rig. PRD §5.3
         window.__rigJump = jumpTo;
 
-        // the projectionist's console: angled toward the screen, floating on a
-        // slow bob — paused whenever the auditorium is offscreen (§9)
-        const consoleEl = stage.querySelector("[data-console]");
-        let bob = null;
-        if (consoleEl) {
-          gsap.set(consoleEl, {
-            rotationY: 16,
-            transformPerspective: 900,
+        // the auditorium walls: angled toward the screen in real perspective,
+        // floating on offset bobs — paused whenever the hall is offscreen (§9)
+        const wallL = stage.querySelector("[data-wall-left]");
+        const wallR = stage.querySelector("[data-wall-right]");
+        if (wallL && wallR) {
+          gsap.set(wallL, {
+            rotationY: 24,
+            transformPerspective: 1100,
             transformOrigin: "left center",
           });
-          bob = gsap.to(consoleEl, {
-            y: 10,
-            duration: 3.4,
-            yoyo: true,
-            repeat: -1,
-            ease: "sine.inOut",
-            paused: true,
+          gsap.set(wallR, {
+            rotationY: -24,
+            transformPerspective: 1100,
+            transformOrigin: "right center",
           });
+          const bobs = [
+            gsap.to(wallL, { y: 10, duration: 3.4, yoyo: true, repeat: -1, ease: "sine.inOut", paused: true }),
+            gsap.to(wallR, { y: -9, duration: 3.9, yoyo: true, repeat: -1, ease: "sine.inOut", paused: true, delay: 0.4 }),
+          ];
           ScrollTrigger.create({
             trigger: stage,
             start: "top bottom",
             end: "bottom top",
-            onToggle: (s) => (s.isActive ? bob.play() : bob.pause()),
+            onToggle: (s) => bobs.forEach((t) => (s.isActive ? t.play() : t.pause())),
           });
         }
 
@@ -237,7 +240,6 @@ export default function Work({ projects, chips }) {
                 <div className="[transform:rotateX(2deg)] [transform-origin:50%_100%]">
                   <LiveRig
                     project={p}
-                    chip={chips?.[p.slug]}
                     priority={false}
                     mountIframe={mounted.includes(p.slug)}
                     failed={failed.includes(p.slug)}
@@ -263,11 +265,11 @@ export default function Work({ projects, chips }) {
             </div>
           ))}
 
-          {/* projectionist's console — pinned mode only. PRD §5.4 */}
-          <div className="pointer-events-none absolute left-0 top-1/2 z-20 hidden -translate-y-1/2 lg:block">
+          {/* left auditorium wall — screen select + the name on screen. §5.4 */}
+          <div className="pointer-events-none absolute left-0 top-1/2 z-20 hidden -translate-y-1/2 [perspective:1200px] lg:block">
             <div
-              data-console=""
-              className="pointer-events-auto relative border border-white/20 bg-white/[0.03] px-5 py-5 backdrop-blur-md"
+              data-wall-left=""
+              className="pointer-events-auto relative w-[240px] border border-white/20 bg-white/[0.03] px-5 py-5 backdrop-blur-md"
               style={{
                 boxShadow:
                   "0 24px 48px -16px rgba(0,0,0,0.7), inset 1px 1px 0 rgba(255,255,255,0.25)",
@@ -278,7 +280,7 @@ export default function Work({ projects, chips }) {
                 {String(activeIndex + 1).padStart(2, "0")} /{" "}
                 {String(projects.length).padStart(2, "0")}
               </MonoLabel>
-              <ol className="mt-4 flex flex-col gap-1.5">
+              <ol className="mt-4 grid grid-cols-6 gap-x-1 gap-y-1.5">
                 {projects.map((p, i) => (
                   <li key={p.slug}>
                     <button
@@ -287,7 +289,7 @@ export default function Work({ projects, chips }) {
                       title={p.client}
                       aria-label={`Go to ${p.client}`}
                       aria-current={i === activeIndex ? "true" : undefined}
-                      className={`-mx-2 -my-1 px-2 py-1 font-mono text-mono uppercase tracking-mono transition-colors ${
+                      className={`-mx-1 -my-0.5 px-1 py-0.5 font-mono text-mono uppercase tracking-mono transition-colors ${
                         i === activeIndex
                           ? "text-signal"
                           : "text-chalk-mute hover:text-chalk"
@@ -298,7 +300,63 @@ export default function Work({ projects, chips }) {
                   </li>
                 ))}
               </ol>
-              <MonoLabel className="mt-4 text-chalk-mute">SCREEN SELECT</MonoLabel>
+              <div className="mt-5 border-t border-rule-inv pt-4">
+                <MonoLabel className="text-chalk-mute">ON SCREEN</MonoLabel>
+                <p className="mt-2 font-display text-h3 leading-display tracking-display">
+                  <ScrambleText text={projects[activeIndex].client} />
+                </p>
+              </div>
+              <MonoLabel className="mt-5 text-chalk-mute">SCREEN SELECT</MonoLabel>
+            </div>
+          </div>
+
+          {/* right auditorium wall — the spec sheet with tech marks */}
+          <div className="pointer-events-none absolute right-0 top-1/2 z-20 hidden -translate-y-1/2 [perspective:1200px] lg:block">
+            <div
+              data-wall-right=""
+              className="pointer-events-auto relative w-[250px] border border-white/20 bg-white/[0.03] px-5 py-5 backdrop-blur-md"
+              style={{
+                boxShadow:
+                  "0 24px 48px -16px rgba(0,0,0,0.7), inset 1px 1px 0 rgba(255,255,255,0.25)",
+              }}
+            >
+              <span aria-hidden="true" className="absolute left-0 top-0 h-2 w-2 bg-signal" />
+              <MonoLabel className="text-chalk">SPEC SHEET</MonoLabel>
+
+              <dl className="mt-4 space-y-3">
+                <div>
+                  <MonoLabel as="dt" className="text-chalk-mute">SECTOR</MonoLabel>
+                  <MonoLabel as="dd" className="mt-1">
+                    <ScrambleText text={projects[activeIndex].sector} />
+                  </MonoLabel>
+                </div>
+                <div>
+                  <MonoLabel as="dt" className="text-chalk-mute">YEAR</MonoLabel>
+                  <MonoLabel as="dd" className="mt-1">
+                    <ScrambleText text={projects[activeIndex].year} />
+                  </MonoLabel>
+                </div>
+                <div>
+                  <MonoLabel as="dt" className="text-chalk-mute">TYPE</MonoLabel>
+                  <MonoLabel as="dd" className="mt-1">
+                    <ScrambleText
+                      text={projects[activeIndex].type === "internal" ? "INTERNAL · PKG IT" : "CLIENT · PKG IT"}
+                    />
+                  </MonoLabel>
+                </div>
+              </dl>
+
+              <div className="mt-5 border-t border-rule-inv pt-4">
+                <MonoLabel className="text-chalk-mute">BUILT WITH</MonoLabel>
+                <ul className="mt-3 space-y-2">
+                  {projects[activeIndex].stack.map((tech) => (
+                    <li key={tech} className="flex items-center gap-3">
+                      <TechIcon name={tech} className="h-4 w-4 shrink-0 text-chalk" />
+                      <MonoLabel as="span" className="text-chalk">{tech}</MonoLabel>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>

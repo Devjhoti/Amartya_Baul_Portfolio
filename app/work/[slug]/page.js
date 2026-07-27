@@ -7,7 +7,6 @@ import MonoLabel from "@/components/ui/MonoLabel";
 import Button from "@/components/ui/Button";
 import RevealText from "@/components/ui/RevealText";
 import CaseEmbed from "@/components/work/CaseEmbed";
-import SectorChip from "@/components/ui/SectorChip";
 import { getProjects, getProject, getAgency } from "@/lib/content";
 
 /**
@@ -129,12 +128,7 @@ export default async function CaseStudy({ params }) {
             </dl>
 
             {/* full-width live embed, same rig, same rules. PRD §5.5 · §6 */}
-            <CaseEmbed
-              project={project}
-              chip={
-                <SectorChip sector={project.chip} size={56} label={`${project.sector} material sample`} />
-              }
-            />
+            <CaseEmbed project={project} />
 
             {copyBlocks.map((block, i) => (
               <section key={block.key} className="grid grid-cols-1 gap-y-4 border-t border-rule pt-6 lg:grid-cols-12 lg:gap-x-6">

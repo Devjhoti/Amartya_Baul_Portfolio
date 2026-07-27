@@ -18,15 +18,12 @@ const LED = {
   OFFLINE: { dot: "bg-chalk-mute", text: "OFFLINE" },
 };
 
-export default function LabelPlate({ project, chip, status = null, scramble = false }) {
+export default function LabelPlate({ project, status = null, scramble = false }) {
   const led = status ? LED[status] : null;
   const meta = [project.sector, project.year, project.stack.join(" · ")].join("  ·  ");
 
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-2 text-chalk sm:pt-3">
-      {/* rendered server-side and passed in — the chip patterns stay out of
-          the client bundle (~20KB gz). PRD §9 */}
-      <span className="shrink-0">{chip}</span>
 
       <div className="relative h-6 w-24 shrink-0">
         <Image

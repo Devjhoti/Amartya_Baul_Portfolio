@@ -3,7 +3,6 @@ import Footer from "@/components/layout/Footer";
 import Hero from "@/components/sections/Hero";
 import Marquee from "@/components/sections/Marquee";
 import Work from "@/components/sections/Work";
-import SectorChip from "@/components/ui/SectorChip";
 import { getProjects, getAgency } from "@/lib/content";
 import About from "@/components/sections/About";
 import Capabilities from "@/components/sections/Capabilities";
@@ -21,22 +20,13 @@ export default async function Home() {
   // props — still sourced through /lib/content.js. PRD §8.3
   const [projects, agency] = await Promise.all([getProjects(), getAgency()]);
 
-  // Label-plate chips render here on the server and travel down as elements,
-  // keeping the procedural pattern data out of the client bundle. PRD §9
-  const chips = Object.fromEntries(
-    projects.map((p) => [
-      p.slug,
-      <SectorChip key={p.slug} sector={p.chip} size={56} label={`${p.sector} material sample`} />,
-    ])
-  );
-
   return (
     <>
       <Nav />
       <main id="content">
         <Hero />
         <Marquee projects={projects} agency={agency} />
-        <Work projects={projects} chips={chips} />
+        <Work projects={projects} />
         <About />
         <Capabilities />
         <Industries />
