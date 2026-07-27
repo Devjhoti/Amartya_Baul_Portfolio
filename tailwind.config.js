@@ -59,6 +59,7 @@ module.exports = {
       spacing: {
         "page-margin": "var(--page-margin)",
         "section-gap": "var(--section-gap)",
+        "section-half": "calc(var(--section-gap) / 2)",
       },
       maxWidth: {
         container: "1560px",
