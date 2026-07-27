@@ -98,9 +98,10 @@ export default function HeroPortrait({ photo, stats, fact }) {
         cards.forEach((c, i) =>
           gsap.set(c, { scale: 0.5, y: 24, autoAlpha: 0, z: 70 + i * 18 })
         );
-        // the signature "writes" itself in left to right — transform must match
-        // the CSS fallback (centered, -4°) or the JS path renders it off-frame
-        gsap.set(sig, { xPercent: -50, rotation: -4, z: 60, clipPath: "inset(-20% 100% -20% 0%)" });
+        // the signature "writes" itself in left to right; it lives inside the
+        // photo layer, so position/parallax ride along automatically — only
+        // rotation (matching the CSS fallback) and the write-on clip are set
+        gsap.set(sig, { rotation: -14, clipPath: "inset(-20% 100% -20% 0%)" });
         gsap.set(wrap, { visibility: "visible" });
         gsap.set([panel, photoEl, ...cards], { willChange: "transform, opacity" });
 
@@ -237,6 +238,20 @@ export default function HeroPortrait({ photo, stats, fact }) {
               className="h-auto w-full max-w-full"
               style={{ maxWidth: "100%", height: "auto" }}
             />
+            {/* signature — a child of the photo layer, so it pops, tilts and
+                parallaxes as one body with the portrait; the layered glow keeps
+                every letter bright over the jacket */}
+            <p
+              data-signature=""
+              aria-hidden="true"
+              className="pointer-events-none absolute bottom-[10%] right-0 z-20 whitespace-nowrap font-script text-[2.6rem] leading-none text-chalk sm:text-[3rem] [transform:rotate(-14deg)]"
+              style={{
+                textShadow:
+                  "0 2px 12px rgba(0,0,0,0.9), 0 0 6px rgba(232,234,229,0.55), 0 0 24px rgba(232,234,229,0.35)",
+              }}
+            >
+              Amartya Baul
+            </p>
           </div>
 
           <StatCard
@@ -260,14 +275,6 @@ export default function HeroPortrait({ photo, stats, fact }) {
             className="-right-3 bottom-[30%] hidden max-w-[170px] sm:-right-20 sm:block"
           />
 
-          {/* signature — popout seal on the bottom right corner */}
-          <p
-            data-signature=""
-            aria-hidden="true"
-            className="pointer-events-none absolute bottom-6 -right-3 sm:-right-8 z-30 whitespace-nowrap font-script text-[2.75rem] sm:text-[3.25rem] leading-none text-chalk drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] [transform:rotate(-26deg)]"
-          >
-            Amartya Baul
-          </p>
         </div>
       </div>
     </div>
