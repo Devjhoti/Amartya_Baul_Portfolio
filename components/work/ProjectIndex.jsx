@@ -27,7 +27,7 @@ export default function ProjectIndex({ projects }) {
           <tbody>
             {projects.map((p, i) => (
               <tr key={p.slug} className="border-b border-rule">
-                <td className="py-4 pr-6 font-mono text-mono uppercase tracking-mono text-signal-dim">
+                <td className="py-4 pr-6 font-mono text-mono uppercase tracking-mono text-ink-mute">
                   {String(i + 1).padStart(2, "0")}
                 </td>
                 <td className="py-4 pr-6 font-medium">{p.client}</td>

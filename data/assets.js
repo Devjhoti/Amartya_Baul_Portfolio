@@ -6,9 +6,7 @@
  * host sits in the render path. Read through /lib/content.js via getAssets().
  * PRD §2.7 · §8.4
  *
- * NEEDS_AMARTYA — /public/portrait.jpg is the raw 2.8MB capture. Re-export
- * ~1200px wide, 4:5 crop, quality 80 before launch (next/image optimises what
- * it serves, but the repo should not carry a 2.8MB source).
+ * portrait.jpg: re-exported in Phase 7 to 1200×1500 (4:5) at quality 80 — 131KB.
  *
  * The hero atmosphere fallback and the 11 sector material chips are procedural
  * SVG components (HeroFallback.jsx, SectorChip.jsx), not files — deliberate,

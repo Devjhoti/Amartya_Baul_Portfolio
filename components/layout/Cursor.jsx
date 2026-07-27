@@ -98,7 +98,7 @@ export default function Cursor() {
     <div
       ref={rootRef}
       aria-hidden="true"
-      className="pointer-events-none fixed left-0 top-0 z-[140] hidden lg:block"
+      className="pointer-events-none fixed left-0 top-0 z-[140] hidden opacity-0 lg:block"
     >
       <span ref={circleRef} className="block h-3 w-3 rounded-full bg-chalk mix-blend-difference" />
       <span

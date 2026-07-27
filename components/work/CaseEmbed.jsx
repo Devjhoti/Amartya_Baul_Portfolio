@@ -11,7 +11,7 @@ import LiveRig from "./LiveRig";
  * and a dead frame stays on the poster for the session. Mobile and reduced
  * motion: poster only. PRD §5.5 · §6
  */
-export default function CaseEmbed({ project }) {
+export default function CaseEmbed({ project, chip }) {
   const ref = useRef(null);
   const [mount, setMount] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -45,6 +45,7 @@ export default function CaseEmbed({ project }) {
     <div ref={ref}>
       <LiveRig
         project={project}
+        chip={chip}
         mountIframe={mount}
         failed={failed}
         onFail={() => setFailed(true)}

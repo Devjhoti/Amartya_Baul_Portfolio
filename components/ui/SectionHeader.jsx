@@ -15,13 +15,16 @@ export default function SectionHeader({
 }) {
   const rule = tone === "dark" ? "border-rule-inv" : "border-rule";
   const mute = tone === "dark" ? "text-chalk-mute" : "text-ink-mute";
+  // Safety yellow reads at ~1.2:1 on concrete — on light plates the index is
+  // ink; signal indices belong to the dark plates. §8.6 over §3.3's allowance.
+  const idx = tone === "dark" ? "text-signal" : "text-ink";
 
   return (
     <div
       className={`flex items-baseline justify-between gap-6 border-t ${rule} pt-4 ${className}`}
     >
       <MonoLabel as={headingAs}>
-        <span className="text-signal">[ {index} ]</span>
+        <span className={idx}>[ {index} ]</span>
         <span className="ml-3">{label}</span>
       </MonoLabel>
       {meta ? <MonoLabel className={`text-right ${mute}`}>{meta}</MonoLabel> : null}

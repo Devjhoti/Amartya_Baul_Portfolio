@@ -17,9 +17,11 @@
   --machine-2: #262e29;
   --machine-3: #313a34;
 
-  /* Ink */
+  /* Ink — ink-mute darkened from #666E68 (3.62:1 on concrete, failed WCAG) to
+     #4C524D: 5.52:1 on concrete, 4.78:1 on concrete-2. Same cool green-grey
+     family, two steps deeper. §8.6 */
   --ink: #141815;
-  --ink-mute: #666e68;
+  --ink-mute: #4c524d;
   --chalk: #e8eae5;
   --chalk-mute: #8b948c;
 

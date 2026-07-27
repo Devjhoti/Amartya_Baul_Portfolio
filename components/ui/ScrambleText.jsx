@@ -52,7 +52,8 @@ export default function ScrambleText({ text, play = true, className = "" }) {
   }, [text, play]);
 
   return (
-    <span className={className} aria-label={text}>
+    <span className={className}>
+      <span className="sr-only">{text}</span>
       <span aria-hidden="true" ref={ref}>
         {text}
       </span>

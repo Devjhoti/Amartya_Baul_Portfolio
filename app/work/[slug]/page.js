@@ -7,6 +7,7 @@ import MonoLabel from "@/components/ui/MonoLabel";
 import Button from "@/components/ui/Button";
 import RevealText from "@/components/ui/RevealText";
 import CaseEmbed from "@/components/work/CaseEmbed";
+import SectorChip from "@/components/ui/SectorChip";
 import { getProjects, getProject, getAgency } from "@/lib/content";
 
 /**
@@ -26,9 +27,19 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const project = await getProject(slug);
   if (!project) return {};
+  const title = `${project.client} — Case Study · Amartya Baul`;
+  const description = `${project.client}: a production website for the ${project.sector.toLowerCase()} sector, designed and built at PKG IT. Live, running, and embedded on this page.`;
   return {
-    title: `${project.client} — Case Study · Amartya Baul`,
-    description: `${project.client}: a production website for the ${project.sector.toLowerCase()} sector, designed and built at PKG IT. Live, running, and embedded on this page.`,
+    title,
+    description,
+    alternates: { canonical: `/work/${slug}` },
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: title }],
+    },
+    twitter: { card: "summary_large_image", title, description, images: ["/og.png"] },
   };
 }
 
@@ -118,12 +129,17 @@ export default async function CaseStudy({ params }) {
             </dl>
 
             {/* full-width live embed, same rig, same rules. PRD §5.5 · §6 */}
-            <CaseEmbed project={project} />
+            <CaseEmbed
+              project={project}
+              chip={
+                <SectorChip sector={project.chip} size={56} label={`${project.sector} material sample`} />
+              }
+            />
 
             {copyBlocks.map((block, i) => (
               <section key={block.key} className="grid grid-cols-1 gap-y-4 border-t border-rule pt-6 lg:grid-cols-12 lg:gap-x-6">
                 <MonoLabel as="h2" className="lg:col-span-3">
-                  <span className="text-signal">[ {String(i + 1).padStart(2, "0")} ]</span>
+                  <span>[ {String(i + 1).padStart(2, "0")} ]</span>
                   <span className="ml-3">{block.label}</span>
                 </MonoLabel>
                 {block.key === "challenge" ? (

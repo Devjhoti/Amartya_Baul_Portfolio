@@ -1,6 +1,7 @@
 import { Archivo, Martian_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { getProfile } from "@/lib/content";
+import { SITE_URL } from "@/lib/seo";
 import SmoothScroll from "@/components/layout/SmoothScroll";
 import Cursor from "@/components/layout/Cursor";
 import Preloader from "@/components/layout/Preloader";
@@ -47,8 +48,23 @@ const satoshi = localFont({
 export async function generateMetadata() {
   const profile = await getProfile();
   return {
+    metadataBase: new URL(SITE_URL),
     title: profile.seo.title,
     description: profile.seo.description,
+    alternates: { canonical: "/" },
+    openGraph: {
+      type: "website",
+      siteName: profile.seo.title,
+      title: profile.seo.title,
+      description: profile.seo.description,
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: profile.seo.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: profile.seo.title,
+      description: profile.seo.description,
+      images: ["/og.png"],
+    },
     icons: {
       icon: [
         { url: "/favicon.svg", type: "image/svg+xml" },
@@ -61,7 +77,33 @@ export async function generateMetadata() {
   };
 }
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const profile = await getProfile();
+  // JSON-LD Person + WebSite. PRD §8.5
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": `${SITE_URL}/#person`,
+        name: profile.name,
+        jobTitle: profile.role,
+        email: `mailto:${profile.contact.email}`,
+        worksFor: { "@type": "Organization", name: profile.employer },
+        address: { "@type": "PostalAddress", addressLocality: "Dhaka", addressCountry: "BD" },
+        url: SITE_URL,
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        name: profile.seo.title,
+        description: profile.seo.description,
+        url: SITE_URL,
+        publisher: { "@id": `${SITE_URL}/#person` },
+      },
+    ],
+  };
+
   return (
     <html
       lang="en"
@@ -78,6 +120,10 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{
             __html: "document.documentElement.classList.add('js')",
           }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         {children}
         <SmoothScroll />

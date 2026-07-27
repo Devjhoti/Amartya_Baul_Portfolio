@@ -20,7 +20,7 @@ import ProjectIndex from "@/components/work/ProjectIndex";
  * reduced motion: no pin, no scale, no iframes — a plain vertical stack of
  * posters and label plates, which is also the no-JS state. PRD §5.4 · §6 · §3.6
  */
-export default function Work({ projects }) {
+export default function Work({ projects, chips }) {
   const stageRef = useRef(null);
   const stRef = useRef(null);
   const idxRef = useRef(0);
@@ -172,6 +172,7 @@ export default function Work({ projects }) {
             <div key={p.slug} data-rig="">
               <LiveRig
                 project={p}
+                chip={chips?.[p.slug]}
                 priority={false}
                 mountIframe={mounted.includes(p.slug)}
                 failed={failed.includes(p.slug)}
@@ -194,9 +195,9 @@ export default function Work({ projects }) {
                     onClick={() => jumpTo(i)}
                     aria-label={`Go to ${p.client}`}
                     aria-current={i === activeIndex ? "true" : undefined}
-                    className={`font-mono text-mono uppercase tracking-mono transition-colors ${
+                    className={`-mx-2 -my-1 px-2 py-1 font-mono text-mono uppercase tracking-mono transition-colors ${
                       i === activeIndex
-                        ? "text-signal"
+                        ? "text-ink underline decoration-signal decoration-2 underline-offset-4"
                         : "text-ink-mute hover:text-ink"
                     }`}
                   >
