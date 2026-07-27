@@ -18,17 +18,17 @@ const monogramSvg = (framed) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox
   <rect width="128" height="128" fill="#1C221E" />
   ${
     framed
-      ? `<rect x="2" y="2" width="124" height="124" fill="none" stroke="#E8EAE5" stroke-opacity="0.22" stroke-width="2" />`
+      ? `<rect x="2" y="2" width="124" height="124" fill="none" stroke="#E8EAE5" stroke-opacity="0.22" stroke-width="2" />
+  <rect x="108" y="108" width="10" height="10" fill="#E5C11F" />`
       : ""
   }
   <g stroke="#E8EAE5" stroke-width="14" stroke-linecap="butt" stroke-linejoin="miter" fill="none">
     <path d="M56 20 L56 108" />
+    <path d="M56 20 L20 108" />
     <path d="M31 84 L56 84" />
-    <path d="M56 20 L98 20 L98 57 L56 57" />
-    <path d="M56 57 L98 57 L98 108 L56 108" />
+    <path d="M56 20 L92 20 L92 57 L56 57" />
+    <path d="M56 57 L104 57 L104 108 L56 108" />
   </g>
-  <polygon points="49.5,17.3 62.5,22.7 27.6,108 12.4,108" fill="#E8EAE5" />
-  <rect x="95" y="105" width="10" height="10" fill="#E5C11F" />
 </svg>`;
 
 // Vector primary
