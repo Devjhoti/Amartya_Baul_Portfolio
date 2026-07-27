@@ -1,5 +1,6 @@
 import Monogram from "@/components/ui/Monogram";
 import Button from "@/components/ui/Button";
+import MagneticWrap from "@/components/ui/MagneticWrap";
 
 /**
  * Thin top bar, transparent over the dark hero. The scroll-condensing floating
@@ -36,9 +37,11 @@ export default function Nav() {
               </li>
             ))}
           </ul>
-          <Button href="#contact" tone="dark" pill>
-            Get in touch
-          </Button>
+          <MagneticWrap>
+            <Button href="#contact" tone="dark" pill>
+              Get in touch
+            </Button>
+          </MagneticWrap>
         </nav>
       </div>
     </header>

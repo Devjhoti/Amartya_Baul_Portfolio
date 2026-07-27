@@ -1,4 +1,5 @@
 import SectionHeader from "@/components/ui/SectionHeader";
+import RevealText from "@/components/ui/RevealText";
 
 /**
  * Four steps as hairlined spec rows — index, name, decision. Static state; the
@@ -29,7 +30,7 @@ export default function Process() {
       <div className="container space-y-14">
         <div className="space-y-10">
           <SectionHeader index="06" label="PROCESS" meta="4 STEPS · EVERY BUILD" />
-          <h2 className="max-w-[16ch] text-h2">The same four steps, every time.</h2>
+          <RevealText as="h2" text="The same four steps, every time." className="max-w-[16ch] text-h2" />
         </div>
 
         <ol className="border-t border-rule">

@@ -1,6 +1,9 @@
 import { Archivo, Martian_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { getProfile } from "@/lib/content";
+import SmoothScroll from "@/components/layout/SmoothScroll";
+import Cursor from "@/components/layout/Cursor";
+import Preloader from "@/components/layout/Preloader";
 import "./globals.css";
 
 /**
@@ -18,11 +21,14 @@ const archivo = Archivo({
 });
 
 // Utility — Martian Mono. Labels, indices, metadata. 11–13px, uppercase.
+// Preloaded alongside the display face: the hero's spec-plate labels are mono
+// and visible from first paint — a late mono swap re-wraps them, which was a
+// measured 0.03 CLS. ~15KB buys a stable first frame. (Deviation from §8.4
+// "preload display only", flagged for the Phase 7 audit.)
 const martianMono = Martian_Mono({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-martian",
-  preload: false,
 });
 
 // Body/UI — Satoshi, self-hosted. Files land in /public/fonts via
@@ -60,7 +66,19 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${archivo.variable} ${satoshi.variable} ${martianMono.variable}`}
     >
-      <body className="bg-concrete font-body text-ink">{children}</body>
+      <body className="bg-concrete font-body text-ink">
+        {/* Runs before anything below paints: gates the pre-hydration hiding of
+            reveal text (.js [data-st-hide]) so no-JS visitors see everything. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "document.documentElement.classList.add('js')",
+          }}
+        />
+        {children}
+        <SmoothScroll />
+        <Cursor />
+        <Preloader />
+      </body>
     </html>
   );
 }

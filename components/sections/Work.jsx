@@ -1,6 +1,7 @@
 import Image from "next/image";
 import SectionHeader from "@/components/ui/SectionHeader";
 import MonoLabel from "@/components/ui/MonoLabel";
+import RevealText from "@/components/ui/RevealText";
 import { getProjects } from "@/lib/content";
 
 /**
@@ -17,7 +18,7 @@ export default async function Work() {
       <div className="container space-y-20">
         <div className="space-y-10">
           <SectionHeader index="02" label="SELECTED WORK" meta="11 BUILDS · ALL LIVE" />
-          <h2 className="max-w-[13ch] text-display">Live work, running right now.</h2>
+          <RevealText as="h2" text="Live work, running right now." className="max-w-[13ch] text-display" />
         </div>
 
         <ol className="grid grid-cols-1 gap-y-24 lg:grid-cols-12 lg:gap-x-6">
@@ -36,6 +37,7 @@ export default async function Work() {
                   href={p.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-cursor="OPEN ↗"
                   className="group block space-y-4"
                 >
                   <div className="relative aspect-[1440/900] overflow-hidden border border-rule bg-machine-2">

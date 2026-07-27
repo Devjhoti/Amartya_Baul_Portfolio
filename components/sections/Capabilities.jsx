@@ -1,5 +1,6 @@
 import SectionHeader from "@/components/ui/SectionHeader";
 import MonoLabel from "@/components/ui/MonoLabel";
+import RevealText from "@/components/ui/RevealText";
 import { getCapabilities } from "@/lib/content";
 
 /**
@@ -20,7 +21,7 @@ export default async function Capabilities() {
             label="CAPABILITIES"
             meta={`4 SYSTEMS · ${total} ITEMS`}
           />
-          <h2 className="max-w-[14ch] text-h2">What the work runs on.</h2>
+          <RevealText as="h2" text="What the work runs on." className="max-w-[14ch] text-h2" />
         </div>
 
         <ul className="group/table border-t border-rule">

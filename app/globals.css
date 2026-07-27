@@ -84,6 +84,46 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
+   Split text (SplitText.jsx) — word wrappers are the reveal masks, characters
+   translate inside them. Real text stays in the DOM; spans are aria-hidden.
+   No animation values live here — initial states and will-change are applied
+   and removed by GSAP at runtime. PRD §7.4 · §8.6
+   ───────────────────────────────────────────────────────────────────────── */
+.st-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+.st-char {
+  display: inline-block;
+}
+
+/* Reveal-managed text is hidden from first paint (before hydration) so the
+   web-font swap reflows it while genuinely invisible — this is what keeps CLS
+   at zero. The .js class is set by an inline script at the top of <body>;
+   without JS, or under reduced motion, the text is simply visible. GSAP flips
+   visibility back on once the characters are masked. PRD §9 (CLS) · §8.6 */
+.js [data-st-hide] {
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .js [data-st-hide] {
+    visibility: visible;
+  }
+}
+
+/* Custom cursor active (set by Cursor.jsx on mount, desktop only) — the dot
+   replaces the arrow visually; hit areas and text caret stay native. §8.6 */
+.has-cursor body {
+  cursor: none;
+}
+.has-cursor input,
+.has-cursor textarea,
+.has-cursor select {
+  cursor: auto;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
    Grain overlay — one of exactly two gradients/textures allowed site-wide.
    Same feTurbulence primitive as HeroFallback.jsx, so the page grain and the
    hero atmosphere read as one material. Inline data URI, no image request.

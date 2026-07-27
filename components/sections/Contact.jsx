@@ -1,6 +1,8 @@
 import SectionHeader from "@/components/ui/SectionHeader";
 import MonoLabel from "@/components/ui/MonoLabel";
 import Button from "@/components/ui/Button";
+import RevealText from "@/components/ui/RevealText";
+import MagneticWrap from "@/components/ui/MagneticWrap";
 import { getProfile } from "@/lib/content";
 
 /**
@@ -25,7 +27,7 @@ export default async function Contact() {
             label="CONTACT"
             meta="REPLIES WITHIN 24 HOURS"
           />
-          <h2 className="max-w-[12ch] text-display">Have a build in mind?</h2>
+          <RevealText as="h2" text="Have a build in mind?" className="max-w-[12ch] text-display" />
         </div>
 
         <div className="grid grid-cols-1 gap-y-16 lg:grid-cols-12 lg:gap-x-6">
@@ -90,9 +92,11 @@ export default async function Contact() {
               </label>
             </div>
 
-            <Button type="submit" tone="dark">
-              Send message
-            </Button>
+            <MagneticWrap>
+              <Button type="submit" tone="dark">
+                Send message
+              </Button>
+            </MagneticWrap>
           </form>
 
           <div className="space-y-10 lg:col-span-4 lg:col-start-9">

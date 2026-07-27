@@ -1,6 +1,8 @@
 import Image from "next/image";
 import SectionHeader from "@/components/ui/SectionHeader";
 import MonoLabel from "@/components/ui/MonoLabel";
+import RevealText from "@/components/ui/RevealText";
+import Counter from "@/components/ui/Counter";
 import { getProfile, getAssets } from "@/lib/content";
 
 /**
@@ -34,9 +36,11 @@ export default async function About() {
 
           <div className="flex flex-col justify-between gap-14 lg:col-span-6 lg:col-start-7">
             <div className="space-y-7">
-              <h2 className="max-w-[16ch] text-h2">
-                Two years, eleven industries, one standard.
-              </h2>
+              <RevealText
+                as="h2"
+                text="Two years, eleven industries, one standard."
+                className="max-w-[16ch] text-h2"
+              />
               {profile.bio.map((paragraph) => (
                 <p key={paragraph} className="max-w-[54ch] text-body">
                   {paragraph}
@@ -48,8 +52,7 @@ export default async function About() {
               {profile.stats.map((s) => (
                 <li key={s.label}>
                   <p className="font-display text-h2 leading-display tracking-display">
-                    {s.value}
-                    {s.suffix}
+                    <Counter value={s.value} suffix={s.suffix} />
                   </p>
                   <MonoLabel className="mt-3 text-ink-mute">{s.label}</MonoLabel>
                 </li>
