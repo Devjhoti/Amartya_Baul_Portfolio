@@ -28,10 +28,19 @@ export default function PageTransition() {
       mobile: window.matchMedia(MM.isMobile).matches,
     });
 
-    const cover = () =>
+    // Vertical curtain by default; the next-project link asks for the
+    // horizontal wipe (§5.5) via data-transition="horizontal".
+    const CLIPS = {
+      vertical: { from: "inset(100% 0% 0% 0%)", to: "inset(0% 0% 100% 0%)" },
+      horizontal: { from: "inset(0% 0% 0% 100%)", to: "inset(0% 100% 0% 0%)" },
+    };
+    let axis = "vertical";
+
+    const cover = (nextAxis = "vertical") =>
       new Promise((resolve) => {
         const panel = panelRef.current;
         const { reduce, mobile } = media();
+        axis = nextAxis;
         coveredRef.current = true;
         gsap.set(panel, { pointerEvents: "auto" });
         if (reduce) {
@@ -48,7 +57,7 @@ export default function PageTransition() {
           gsap.set(panel, { autoAlpha: 1, willChange: "clip-path" });
           gsap.fromTo(
             panel,
-            { clipPath: "inset(100% 0% 0% 0%)" },
+            { clipPath: CLIPS[axis].from },
             {
               clipPath: "inset(0% 0% 0% 0%)",
               duration: 0.45,
@@ -76,7 +85,7 @@ export default function PageTransition() {
       else if (mobile) gsap.to(panel, { autoAlpha: 0, duration: 0.2, ease: "power2.out", onComplete: park });
       else
         gsap.to(panel, {
-          clipPath: "inset(0% 0% 100% 0%)",
+          clipPath: CLIPS[axis].to,
           duration: 0.45,
           ease: EASE.inOut,
           onComplete: park,
@@ -92,13 +101,19 @@ export default function PageTransition() {
       if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
       const href = link.getAttribute("href");
       if (!href?.startsWith("/")) return; // hashes and external URLs stay native
-      if (href === window.location.pathname) return;
+      const url = new URL(link.href, window.location.href);
+      // same-page links (including "/#hash" while on "/") stay native
+      if (url.pathname === window.location.pathname) return;
       e.preventDefault();
-      cover().then(() => router.push(href));
+      cover(link.dataset.transition === "horizontal" ? "horizontal" : "vertical").then(() =>
+        router.push(href)
+      );
     };
 
-    document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
+    // Capture phase: runs before next/link's own handler, which then sees
+    // defaultPrevented and stands down.
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
   }, [router]);
 
   // Arriving on a new route: wipe off if we covered; back/forward arrives

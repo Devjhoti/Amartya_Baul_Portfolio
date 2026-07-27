@@ -32,9 +32,12 @@ export default function SmoothScroll() {
       window.__lenis = lenis;
 
       const onClick = (e) => {
-        const link = e.target.closest?.('a[href^="#"]');
+        // "#hash" links, and "/#hash" links when already on that page
+        const link = e.target.closest?.('a[href*="#"]');
         if (!link) return;
-        const target = document.querySelector(link.getAttribute("href"));
+        const url = new URL(link.href, window.location.href);
+        if (url.pathname !== window.location.pathname || !url.hash) return;
+        const target = document.querySelector(url.hash);
         if (!target) return;
         e.preventDefault();
         lenis.scrollTo(target);

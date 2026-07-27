@@ -1,18 +1,15 @@
 import SectionHeader from "@/components/ui/SectionHeader";
 import MonoLabel from "@/components/ui/MonoLabel";
-import Button from "@/components/ui/Button";
 import RevealText from "@/components/ui/RevealText";
-import MagneticWrap from "@/components/ui/MagneticWrap";
+import DhakaClock from "@/components/ui/DhakaClock";
+import ContactForm from "./ContactForm";
 import { getProfile } from "@/lib/content";
 
 /**
- * Full-bleed machine ground. Form left, direct channels right. This phase is
- * markup only — validation, the four written states and the Formspree POST are
- * wired in Phase 5, as is the ticking Dhaka clock (static here). PRD §5.10
+ * Full-bleed machine ground. Wired form left (validation, four written states,
+ * Formspree JSON POST — see ContactForm.jsx), direct channels and the live
+ * Dhaka clock right. PRD §5.10
  */
-const FIELD =
-  "w-full border-b border-rule-inv bg-transparent pb-3 pt-2 font-body text-body text-chalk placeholder:text-chalk-mute";
-
 export default async function Contact() {
   const profile = await getProfile();
   const { email, whatsapp, whatsappIntl } = profile.contact;
@@ -31,73 +28,9 @@ export default async function Contact() {
         </div>
 
         <div className="grid grid-cols-1 gap-y-16 lg:grid-cols-12 lg:gap-x-6">
-          <form className="space-y-10 lg:col-span-6">
-            <div>
-              <MonoLabel as="label" htmlFor="contact-name" className="block text-chalk-mute">
-                NAME
-              </MonoLabel>
-              <input
-                id="contact-name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                className={FIELD}
-                placeholder="Your name"
-              />
-            </div>
-            <div>
-              <MonoLabel as="label" htmlFor="contact-email" className="block text-chalk-mute">
-                EMAIL
-              </MonoLabel>
-              <input
-                id="contact-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                className={FIELD}
-                placeholder="you@company.com"
-              />
-            </div>
-            <div>
-              <MonoLabel as="label" htmlFor="contact-company" className="block text-chalk-mute">
-                COMPANY — OPTIONAL
-              </MonoLabel>
-              <input
-                id="contact-company"
-                name="company"
-                type="text"
-                autoComplete="organization"
-                className={FIELD}
-                placeholder="Company or project"
-              />
-            </div>
-            <div>
-              <MonoLabel as="label" htmlFor="contact-message" className="block text-chalk-mute">
-                MESSAGE
-              </MonoLabel>
-              <textarea
-                id="contact-message"
-                name="message"
-                rows={5}
-                className={FIELD}
-                placeholder="What are you building, and when does it need to be live?"
-              />
-            </div>
-
-            {/* Honeypot — real users never see or fill this. PRD §5.10 */}
-            <div className="hidden" aria-hidden="true">
-              <label>
-                Leave this field empty
-                <input name="_gotcha" type="text" tabIndex={-1} autoComplete="off" />
-              </label>
-            </div>
-
-            <MagneticWrap>
-              <Button type="submit" tone="dark">
-                Send message
-              </Button>
-            </MagneticWrap>
-          </form>
+          <div className="lg:col-span-6">
+            <ContactForm endpoint={profile.formEndpoint} email={email} />
+          </div>
 
           <div className="space-y-10 lg:col-span-4 lg:col-start-9">
             <div>
@@ -122,7 +55,7 @@ export default async function Contact() {
             </div>
             <div>
               <MonoLabel className="text-chalk-mute">LOCAL TIME</MonoLabel>
-              <MonoLabel className="mt-2">DHAKA, BANGLADESH — GMT+6</MonoLabel>
+              <DhakaClock />
             </div>
           </div>
         </div>

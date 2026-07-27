@@ -23,9 +23,9 @@ export default function Nav() {
         <nav aria-label="Primary" className="flex items-center gap-10">
           <ul className="hidden items-center gap-8 md:flex">
             {[
-              ["Work", "#work"],
-              ["About", "#about"],
-              ["Contact", "#contact"],
+              ["Work", "/#work"],
+              ["About", "/#about"],
+              ["Contact", "/#contact"],
             ].map(([label, href]) => (
               <li key={href}>
                 <a
@@ -38,7 +38,7 @@ export default function Nav() {
             ))}
           </ul>
           <MagneticWrap>
-            <Button href="#contact" tone="dark" pill>
+            <Button href="/#contact" tone="dark" pill>
               Get in touch
             </Button>
           </MagneticWrap>

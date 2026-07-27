@@ -22,9 +22,9 @@ export default async function Footer() {
             <MonoLabel className="text-chalk-mute">INDEX</MonoLabel>
             <ul className="mt-4 space-y-2">
               {[
-                ["Work", "#work"],
-                ["About", "#about"],
-                ["Contact", "#contact"],
+                ["Work", "/#work"],
+                ["About", "/#about"],
+                ["Contact", "/#contact"],
               ].map(([label, href]) => (
                 <li key={href}>
                   <a
