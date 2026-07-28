@@ -85,6 +85,24 @@ export default function Preloader() {
           text-transform: uppercase;
           margin: 0;
         }
+        /* domino fall — each character lies flat at its bottom-left corner
+           and stands up in sequence with a small overshoot. Pure CSS: the
+           panel deliberately owns no JS animation, and the last domino lands
+           (~0.83s) before the wipe leaves at 0.9s. */
+        .ab-pre-name .ch {
+          display: inline-block;
+          transform-origin: bottom left;
+          transform: rotate(-90deg);
+          opacity: 0;
+          animation: ab-domino 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          will-change: transform, opacity;
+        }
+        @keyframes ab-domino {
+          to {
+            transform: rotate(0deg);
+            opacity: 1;
+          }
+        }
         .ab-pre-counter {
           position: absolute;
           bottom: 2rem;
@@ -112,8 +130,20 @@ export default function Preloader() {
         className={`ab-pre${phase === 1 ? " ab-pre--wipe" : ""}`}
       >
         <div>
-          <p className="ab-pre-name">AMARTYA</p>
-          <p className="ab-pre-name">BAUL</p>
+          {["AMARTYA", "BAUL"].map((word, line) => (
+            <p key={word} className="ab-pre-name">
+              {word.split("").map((ch, i) => (
+                <span
+                  key={i}
+                  className="ch"
+                  // one continuous domino run across both lines
+                  style={{ animationDelay: `${((line === 0 ? 0 : 7) + i) * 0.035 + 0.03}s` }}
+                >
+                  {ch}
+                </span>
+              ))}
+            </p>
+          ))}
         </div>
 
         <p className="ab-pre-counter" ref={counterRef}>000</p>
