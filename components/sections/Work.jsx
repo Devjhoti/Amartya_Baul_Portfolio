@@ -426,7 +426,7 @@ export default function Work({ projects }) {
       {/* the FAQ band — the tornado turns behind it on a TRANSPARENT ground,
           its strands tinted to the smoke's own greens so the two read as one
           weather system, not a black poster pasted into the page */}
-      <div className="relative overflow-hidden border-t border-rule-inv py-section-half text-chalk">
+      <div className="relative flex min-h-dvh flex-col justify-center overflow-hidden border-t border-rule-inv py-section-half text-chalk">
         <div aria-hidden="true" className="absolute inset-0">
           <Vortex
             background="transparent"

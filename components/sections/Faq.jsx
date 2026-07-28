@@ -125,9 +125,19 @@ export default function Faq() {
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <p className="max-w-[62ch] pb-7 pl-9 text-body leading-relaxed text-chalk-mute lg:pl-12">
-                      {a}
-                    </p>
+                    {/* glass plate — same material as the auditorium walls,
+                        so the answer lifts clear of the tornado behind it */}
+                    <div
+                      className="mb-7 ml-9 border border-white/15 bg-white/[0.06] px-6 py-5 backdrop-blur-md lg:ml-12"
+                      style={{
+                        boxShadow:
+                          "0 16px 32px -16px rgba(0,0,0,0.5), inset 1px 1px 0 rgba(255,255,255,0.12)",
+                      }}
+                    >
+                      <p className="max-w-[62ch] text-body leading-relaxed text-chalk">
+                        {a}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </li>

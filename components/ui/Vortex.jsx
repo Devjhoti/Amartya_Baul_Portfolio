@@ -716,7 +716,10 @@ function createVortex(container, cfgRef) {
     camera.updateProjectionMatrix();
     repelUniforms.uAspect.value = w / h;
     repelUniforms.uRadius.value = clamp(cfg.repelRadius / (h / 2), 0.01, 3);
-    if (!cfg.running) renderer.render(scene, camera);
+    // Repaint in the SAME frame, always: setSize clears the drawing buffer,
+    // and waiting for the next rAF flashes an empty canvas — the FAQ
+    // accordion above resizes this band on every toggle.
+    renderer.render(scene, camera);
   }
   const observer = new ResizeObserver(resize);
 
