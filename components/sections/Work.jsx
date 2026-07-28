@@ -11,6 +11,7 @@ import RevealText from "@/components/ui/RevealText";
 import ScrambleText from "@/components/ui/ScrambleText";
 import TechIcon from "@/components/ui/TechIcon";
 import LiveRig from "@/components/work/LiveRig";
+import LabelPlate from "@/components/work/LabelPlate";
 import ProjectIndex from "@/components/work/ProjectIndex";
 
 /**
@@ -34,6 +35,7 @@ export default function Work({ projects }) {
   const [mounted, setMounted] = useState([]); // LRU of slugs, most recent last
   const [failed, setFailed] = useState([]);
   const [sectorFilter, setSectorFilter] = useState(null);
+  const [statusMap, setStatusMap] = useState({});
   const isDesktop = useIsDesktop();
   const reduceMotion = usePrefersReducedMotion();
   const allowIframe = isDesktop && !reduceMotion;
@@ -70,6 +72,10 @@ export default function Work({ projects }) {
   const handleFail = useCallback((slug) => {
     setFailed((f) => (f.includes(slug) ? f : [...f, slug]));
     setMounted((m) => m.filter((s) => s !== slug));
+  }, []);
+
+  const handleStatus = useCallback((slug, status) => {
+    setStatusMap((m) => (m[slug] === status ? m : { ...m, [slug]: status }));
   }, []);
 
   // Industries cells filter the index table down here. PRD §5.8
@@ -244,8 +250,14 @@ export default function Work({ projects }) {
                     mountIframe={mounted.includes(p.slug)}
                     failed={failed.includes(p.slug)}
                     onFail={handleFail}
+                    onStatus={handleStatus}
                   />
                 </div>
+              </div>
+
+              {/* mobile has no walls — a slim identity line under the screen */}
+              <div className="mt-1 lg:hidden">
+                <LabelPlate project={p} />
               </div>
 
               {/* screen light reflecting off the auditorium floor */}
@@ -269,7 +281,7 @@ export default function Work({ projects }) {
           <div className="pointer-events-none absolute left-0 top-1/2 z-20 hidden -translate-y-1/2 [perspective:1200px] lg:block">
             <div
               data-wall-left=""
-              className="pointer-events-auto relative w-[240px] border border-white/20 bg-white/[0.03] px-5 py-5 backdrop-blur-md"
+              className="pointer-events-auto relative flex min-h-[min(560px,62vh)] w-[250px] flex-col border border-white/20 bg-white/[0.03] px-5 py-6 backdrop-blur-md"
               style={{
                 boxShadow:
                   "0 24px 48px -16px rgba(0,0,0,0.7), inset 1px 1px 0 rgba(255,255,255,0.25)",
@@ -300,13 +312,18 @@ export default function Work({ projects }) {
                   </li>
                 ))}
               </ol>
-              <div className="mt-5 border-t border-rule-inv pt-4">
+              <div className="mt-6 flex flex-1 flex-col justify-center border-t border-rule-inv pt-5">
                 <MonoLabel className="text-chalk-mute">ON SCREEN</MonoLabel>
-                <p className="mt-2 font-display text-h3 leading-display tracking-display">
+                <p className="mt-3 font-display text-h2 leading-display tracking-display">
                   <ScrambleText text={projects[activeIndex].client} />
                 </p>
+                <MonoLabel className="mt-4 text-chalk-mute">
+                  <ScrambleText text={projects[activeIndex].sector} />
+                </MonoLabel>
               </div>
-              <MonoLabel className="mt-5 text-chalk-mute">SCREEN SELECT</MonoLabel>
+              <MonoLabel className="mt-6 border-t border-rule-inv pt-4 text-chalk-mute">
+                SCREEN SELECT — AUDITORIUM 01
+              </MonoLabel>
             </div>
           </div>
 
@@ -314,7 +331,7 @@ export default function Work({ projects }) {
           <div className="pointer-events-none absolute right-0 top-1/2 z-20 hidden -translate-y-1/2 [perspective:1200px] lg:block">
             <div
               data-wall-right=""
-              className="pointer-events-auto relative w-[250px] border border-white/20 bg-white/[0.03] px-5 py-5 backdrop-blur-md"
+              className="pointer-events-auto relative flex min-h-[min(560px,62vh)] w-[260px] flex-col border border-white/20 bg-white/[0.03] px-5 py-6 backdrop-blur-md"
               style={{
                 boxShadow:
                   "0 24px 48px -16px rgba(0,0,0,0.7), inset 1px 1px 0 rgba(255,255,255,0.25)",
@@ -323,7 +340,7 @@ export default function Work({ projects }) {
               <span aria-hidden="true" className="absolute left-0 top-0 h-2 w-2 bg-signal" />
               <MonoLabel className="text-chalk">SPEC SHEET</MonoLabel>
 
-              <dl className="mt-4 space-y-3">
+              <dl className="mt-5 flex-1 space-y-4">
                 <div>
                   <MonoLabel as="dt" className="text-chalk-mute">SECTOR</MonoLabel>
                   <MonoLabel as="dd" className="mt-1">
@@ -342,6 +359,28 @@ export default function Work({ projects }) {
                     <ScrambleText
                       text={projects[activeIndex].type === "internal" ? "INTERNAL · PKG IT" : "CLIENT · PKG IT"}
                     />
+                  </MonoLabel>
+                </div>
+                <div>
+                  <MonoLabel as="dt" className="text-chalk-mute">STATUS</MonoLabel>
+                  <MonoLabel as="dd" className="mt-1 flex items-center gap-2">
+                    {(() => {
+                      const s = statusMap[projects[activeIndex].slug] ?? null;
+                      const dot =
+                        s === "LIVE"
+                          ? "bg-signal"
+                          : s === "LOADING"
+                            ? "animate-pulse bg-signal-dim"
+                            : s === "OFFLINE"
+                              ? "bg-chalk-mute"
+                              : "bg-chalk-mute/40";
+                      return (
+                        <>
+                          <span aria-hidden="true" className={`inline-block h-2 w-2 rounded-full ${dot}`} />
+                          {s ?? "STANDBY"}
+                        </>
+                      );
+                    })()}
                   </MonoLabel>
                 </div>
               </dl>

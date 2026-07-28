@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { gsap } from "@/lib/gsap";
 import RigChassis from "./RigChassis";
-import LabelPlate from "./LabelPlate";
 
 /**
  * The three-state machine. POSTER is the default and the permanent fallback;
@@ -17,7 +16,7 @@ import LabelPlate from "./LabelPlate";
  */
 const BOOT_TIMEOUT = 6000;
 
-export default function LiveRig({ project, mountIframe, failed, priority, onFail }) {
+export default function LiveRig({ project, mountIframe, failed, priority, onFail, onStatus }) {
   const screenRef = useRef(null);
   const frameWrapRef = useRef(null);
   const posterRef = useRef(null);
@@ -30,6 +29,11 @@ export default function LiveRig({ project, mountIframe, failed, priority, onFail
         ? "LIVE"
         : "LOADING"
       : null;
+
+  // the auditorium walls display the status LED now that the plate is gone
+  useEffect(() => {
+    onStatus?.(project.slug, status);
+  }, [status, project.slug, onStatus]);
 
   // Scale the logical 1440×900 frame to the real chassis width.
   useEffect(() => {
@@ -85,6 +89,8 @@ export default function LiveRig({ project, mountIframe, failed, priority, onFail
                 ref={frameWrapRef}
                 className="absolute left-0 top-0 h-[900px] w-[1440px] origin-top-left"
               >
+                {/* drawn 20px oversize each way — the guest site's scrollbars
+                    fall outside the clipped 1440×900 screen */}
                 <iframe
                   src={project.url}
                   title={project.client}
@@ -92,7 +98,7 @@ export default function LiveRig({ project, mountIframe, failed, priority, onFail
                   loading="lazy"
                   sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
                   referrerPolicy="no-referrer"
-                  className="pointer-events-none h-full w-full border-0 bg-machine-2"
+                  className="pointer-events-none h-[920px] w-[1460px] border-0 bg-machine-2"
                   onLoad={() => setLoaded(true)}
                 />
               </div>
@@ -109,7 +115,6 @@ export default function LiveRig({ project, mountIframe, failed, priority, onFail
             </div>
           </div>
         }
-        plate={<LabelPlate project={project} status={status} scramble={status !== null} />}
       />
     </a>
   );
