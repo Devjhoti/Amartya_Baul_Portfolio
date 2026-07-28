@@ -6,13 +6,14 @@ import Work from "@/components/sections/Work";
 import { getProjects, getAgency } from "@/lib/content";
 import About from "@/components/sections/About";
 import Capabilities from "@/components/sections/Capabilities";
-import Industries from "@/components/sections/Industries";
+import Services from "@/components/sections/Services";
 import Process from "@/components/sections/Process";
 import Contact from "@/components/sections/Contact";
 
 /**
- * Home — section order per PRD §5:
- * hero → trusted-by → work → about → capabilities → industries → process → contact.
+ * Home — section order per PRD §5 (Industries replaced by Services on
+ * client direction):
+ * hero → trusted-by → work → about → capabilities → services → process → contact.
  * There is no testimonials section (§2.4), and exactly one logo marquee (§2.4.1).
  */
 export default async function Home() {
@@ -29,7 +30,7 @@ export default async function Home() {
         <Work projects={projects} />
         <About />
         <Capabilities />
-        <Industries />
+        <Services />
         <Process />
         <Contact />
       </main>
