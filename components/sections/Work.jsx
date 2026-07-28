@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { gsap, ScrollTrigger, useGSAP, MM } from "@/lib/gsap";
 import { EASE } from "@/lib/motion";
 import { useIsDesktop, usePrefersReducedMotion } from "@/lib/useIsDesktop";
@@ -12,6 +13,10 @@ import TechIcon from "@/components/ui/TechIcon";
 import LiveRig from "@/components/work/LiveRig";
 import LabelPlate from "@/components/work/LabelPlate";
 import ProjectIndex from "@/components/work/ProjectIndex";
+
+// Three.js stays out of the main bundle — same treatment as the hero rig. The
+// index band's black CSS ground is the no-JS / no-WebGL fallback. §9
+const Vortex = dynamic(() => import("@/components/ui/Vortex"), { ssr: false });
 
 /**
  * The machine cinema. A darkened auditorium band: each rig is the screen,
@@ -393,8 +398,32 @@ export default function Work({ projects }) {
           </div>
       </div>
 
-      <div className="border-t border-rule-inv bg-concrete py-section-half text-ink">
-        <div className="container">
+      {/* the index runs on the auditorium's black floor now, with the tornado
+          turning behind it — the scrim keeps every row of the table sharp */}
+      <div className="relative overflow-hidden border-t border-rule-inv bg-black py-section-half text-chalk">
+        <div aria-hidden="true" className="absolute inset-0">
+          <Vortex
+            background="#000000"
+            topRadius={380}
+            waistRadius={53}
+            waistPosition={50}
+            bottomRadius={1150}
+            twist={3}
+            zoom={75}
+            speed={10}
+            direction="right"
+            dots
+            dotOptions={{ count: isDesktop ? 8000 : 2200 }}
+            comets
+            cometOptions={{ color: "#E5C11F" }}
+            lineOptions={{ count: isDesktop ? 240 : 120, glow: 7 }}
+          />
+          {/* two scrims: a light veil everywhere, and a heavier pool over the
+              funnel's bright core — the table stays readable dead centre */}
+          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 [background:radial-gradient(ellipse_55%_65%_at_50%_60%,rgba(0,0,0,0.6),transparent_72%)]" />
+        </div>
+        <div className="container relative z-10">
           <ProjectIndex
             projects={indexProjects}
             filter={sectorFilter}
