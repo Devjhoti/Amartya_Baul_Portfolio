@@ -90,7 +90,9 @@ export default function LiveRig({
   return (
     <div>
     <a
-      href={project.url}
+      // the frame shows what it is allowed to embed; the link goes to the
+      // site's own address when those differ
+      href={project.siteUrl ?? project.url}
       target="_blank"
       rel="noopener noreferrer"
       data-cursor="OPEN ↗"

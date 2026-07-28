@@ -243,7 +243,11 @@ export const projects = [
     client: "PKG IT",
     sector: "IT Services",
     chip: "anodised",
+    // The rig frames the Vercel deployment: the custom domain answers with
+    // X-Frame-Options SAMEORIGIN and cannot be embedded. Same site either way
+    // — `siteUrl` is where OPEN and the case study send people.
     url: "https://pkg-it-portfolio.vercel.app/",
+    siteUrl: "https://pkgit.net",
     logo: "/logos/pkg-it.png",
     poster: "/posters/pkg-it.webp",
     type: "internal", // employer's own site — labelled INTERNAL, not CLIENT. PRD §2.2.1

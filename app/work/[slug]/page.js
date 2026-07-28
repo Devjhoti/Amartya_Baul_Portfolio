@@ -149,7 +149,7 @@ export default async function CaseStudy({ params }) {
             ))}
 
             <div className="flex flex-wrap items-center gap-x-10 gap-y-6">
-              <Button href={project.url} external>
+              <Button href={project.siteUrl ?? project.url} external>
                 Open live site <span aria-hidden="true">↗</span>
               </Button>
             </div>
