@@ -131,7 +131,12 @@ export default async function RootLayout({ children }) {
             reveal text (.js [data-st-hide]) so no-JS visitors see everything. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: "document.documentElement.classList.add('js')",
+            __html:
+              "document.documentElement.classList.add('js');" +
+              // Stamped before the intro panel exists, so a repeat visit in the
+              // same session never flashes it. <html> is already excluded from
+              // hydration diffing above.
+              "try{if(sessionStorage.getItem('ab:intro'))document.documentElement.setAttribute('data-intro-seen','')}catch(e){}",
           }}
         />
         <script
