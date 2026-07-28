@@ -223,7 +223,7 @@ export default function Work({ projects }) {
   };
 
   return (
-    <section id="work" className="bg-machine text-chalk">
+    <section id="work" className="text-chalk">
       <div className="container pt-section-half">
         <div className="space-y-10">
           <SectionHeader

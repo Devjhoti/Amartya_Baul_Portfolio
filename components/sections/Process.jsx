@@ -26,27 +26,27 @@ const STEPS = [
 
 export default function Process() {
   return (
-    <section className="bg-concrete py-section-half">
+    <section className="py-section-half text-chalk">
       <div className="container space-y-14">
         <div className="space-y-10">
-          <SectionHeader index="06" label="PROCESS" meta="4 STEPS · EVERY BUILD" />
+          <SectionHeader tone="dark" index="06" label="PROCESS" meta="4 STEPS · EVERY BUILD" />
           <RevealText as="h2" text="The same four steps, every time." className="max-w-[16ch] text-h2" />
         </div>
 
-        <ol className="border-t border-rule">
+        <ol className="border-t border-rule-inv">
           {STEPS.map((step, i) => (
             <li
               key={step.name}
-              className="grid grid-cols-1 gap-y-4 border-b border-rule py-10 lg:grid-cols-12 lg:gap-x-6"
+              className="grid grid-cols-1 gap-y-4 border-b border-rule-inv py-10 lg:grid-cols-12 lg:gap-x-6"
             >
               <p
                 aria-hidden="true"
-                className="font-display text-display leading-display tracking-display text-ink-mute lg:col-span-2"
+                className="font-display text-display leading-display tracking-display text-chalk-mute lg:col-span-2"
               >
                 {String(i + 1).padStart(2, "0")}
               </p>
               <h3 className="text-h3 lg:col-span-3 lg:pt-2">{step.name}</h3>
-              <p className="max-w-[58ch] text-body text-ink-mute lg:col-span-7 lg:pt-2">
+              <p className="max-w-[58ch] text-body text-chalk-mute lg:col-span-7 lg:pt-2">
                 {step.body}
               </p>
             </li>

@@ -168,7 +168,7 @@ export default function Marquee({ projects, agency }) {
   );
 
   return (
-    <section ref={rootRef} className="bg-machine pb-28 pt-10 text-chalk">
+    <section ref={rootRef} className="pb-28 pt-10 text-chalk">
       <div className="container space-y-14">
         <SectionHeader
           tone="dark"

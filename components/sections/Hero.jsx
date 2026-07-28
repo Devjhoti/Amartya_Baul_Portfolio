@@ -1,5 +1,3 @@
-import HeroFallback from "@/components/webgl/HeroFallback";
-import AtmosphereMount from "@/components/webgl/AtmosphereMount";
 import MonoLabel from "@/components/ui/MonoLabel";
 import Button from "@/components/ui/Button";
 import RevealText from "@/components/ui/RevealText";
@@ -23,10 +21,9 @@ export default async function Hero() {
   }));
 
   return (
-    <section className="relative overflow-hidden bg-machine text-chalk">
-      <HeroFallback className="absolute inset-0 h-full w-full" />
-      <AtmosphereMount />
-
+    // transparent over the site-wide atmosphere — the smoke that used to live
+    // here is now the fixed layer behind every section
+    <section className="relative overflow-hidden text-chalk">
       <div className="container relative z-10 flex min-h-dvh flex-col">
         <div className="mt-24 flex items-baseline justify-between border-t border-rule-inv pt-4">
           <MonoLabel className="whitespace-nowrap">

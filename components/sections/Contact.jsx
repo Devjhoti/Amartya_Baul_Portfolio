@@ -15,7 +15,7 @@ export default async function Contact() {
   const { email, whatsapp, whatsappIntl } = profile.contact;
 
   return (
-    <section id="contact" className="bg-machine py-section-gap text-chalk">
+    <section id="contact" className="py-section-gap text-chalk">
       <div className="container space-y-16">
         <div className="space-y-10">
           <SectionHeader

@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { getProfile } from "@/lib/content";
 import { SITE_URL } from "@/lib/seo";
 import SmoothScroll from "@/components/layout/SmoothScroll";
+import SiteAtmosphere from "@/components/layout/SiteAtmosphere";
 import Cursor from "@/components/layout/Cursor";
 import Preloader from "@/components/layout/Preloader";
 import PageTransition from "@/components/layout/PageTransition";
@@ -123,7 +124,9 @@ export default async function RootLayout({ children }) {
       suppressHydrationWarning
       className={`${archivo.variable} ${satoshi.variable} ${martianMono.variable} ${greatVibes.variable}`}
     >
-      <body className="bg-concrete font-body text-ink">
+      {/* machine ground: the fixed smoke layer is the real surface — the body
+          colour only shows on overscroll and must match it */}
+      <body className="bg-machine font-body text-ink">
         {/* Runs before anything below paints: gates the pre-hydration hiding of
             reveal text (.js [data-st-hide]) so no-JS visitors see everything. */}
         <script
@@ -135,6 +138,7 @@ export default async function RootLayout({ children }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <SiteAtmosphere />
         {children}
         <SmoothScroll />
         <ScrollProgress />

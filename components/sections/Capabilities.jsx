@@ -13,10 +13,11 @@ export default async function Capabilities() {
   const total = capabilities.reduce((n, g) => n + g.items.length, 0);
 
   return (
-    <section className="bg-concrete py-section-half">
+    <section className="py-section-half text-chalk">
       <div className="container space-y-14">
         <div className="space-y-10">
           <SectionHeader
+            tone="dark"
             index="04"
             label="CAPABILITIES"
             meta={`4 SYSTEMS · ${total} ITEMS`}
@@ -24,13 +25,13 @@ export default async function Capabilities() {
           <RevealText as="h2" text="What the work runs on." className="max-w-[14ch] text-h2" />
         </div>
 
-        <ul className="group/table border-t border-rule">
+        <ul className="group/table border-t border-rule-inv">
           {capabilities.map((row) => (
             <li
               key={row.group}
-              className="grid grid-cols-1 gap-y-3 border-b border-rule py-9 transition-opacity hover:!opacity-100 group-hover/table:opacity-40 lg:grid-cols-12 lg:gap-x-6"
+              className="grid grid-cols-1 gap-y-3 border-b border-rule-inv py-9 transition-opacity hover:!opacity-100 group-hover/table:opacity-40 lg:grid-cols-12 lg:gap-x-6"
             >
-              <MonoLabel className="text-ink-mute lg:col-span-3">{row.group}</MonoLabel>
+              <MonoLabel className="text-chalk-mute lg:col-span-3">{row.group}</MonoLabel>
               <p className="flex flex-wrap gap-x-8 gap-y-2 lg:col-span-9">
                 {row.items.map((item) => (
                   <span key={item} className="text-h3 font-medium">

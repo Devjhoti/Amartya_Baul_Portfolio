@@ -18,20 +18,21 @@ export default async function Industries() {
   }, {});
 
   return (
-    <section className="bg-concrete-2 py-section-half">
+    <section className="py-section-half text-chalk">
       <div className="container space-y-14">
         <SectionHeader
+          tone="dark"
           index="05"
           label="INDUSTRIES SERVED"
           meta="11 SECTORS"
           headingAs="h2"
         />
 
-        <ul className="grid grid-cols-2 border-l border-t border-rule md:grid-cols-3 lg:grid-cols-5">
+        <ul className="grid grid-cols-2 border-l border-t border-rule-inv md:grid-cols-3 lg:grid-cols-5">
           {projects.map((p) => {
             const n = counts[p.sector];
             return (
-              <li key={p.slug} className="border-b border-r border-rule">
+              <li key={p.slug} className="border-b border-r border-rule-inv">
                 <IndustryCell
                   sector={p.sector}
                   className="group flex h-full w-full flex-col gap-6 p-6 text-left"
@@ -46,7 +47,7 @@ export default async function Industries() {
                     <MonoLabel as="span" className="block transition-colors group-hover:text-signal">
                       {p.sector}
                     </MonoLabel>
-                    <span className="mt-1 block text-small text-ink-mute">
+                    <span className="mt-1 block text-small text-chalk-mute">
                       {n} build{n > 1 ? "s" : ""}
                     </span>
                   </span>

@@ -14,9 +14,9 @@ export default async function About() {
   const [profile, assets] = await Promise.all([getProfile(), getAssets()]);
 
   return (
-    <section id="about" className="bg-concrete py-section-half">
+    <section id="about" className="py-section-half text-chalk">
       <div className="container space-y-16">
-        <SectionHeader index="03" label="ABOUT" meta="DHAKA, BANGLADESH · GMT+6" />
+        <SectionHeader tone="dark" index="03" label="ABOUT" meta="DHAKA, BANGLADESH · GMT+6" />
 
         <div className="grid grid-cols-1 gap-y-12 lg:grid-cols-12 lg:gap-x-6">
           <RevealText as="div" variant="slide-left" className="lg:col-span-5">
@@ -25,7 +25,7 @@ export default async function About() {
               alt="Amartya Baul"
               sizes="(min-width: 1024px) 40vw, 100vw"
             />
-            <MonoLabel className="mt-3 text-ink-mute">
+            <MonoLabel className="mt-3 text-chalk-mute">
               AMARTYA BAUL — FULL-STACK DEVELOPER
             </MonoLabel>
           </RevealText>
@@ -48,14 +48,14 @@ export default async function About() {
               ))}
             </div>
 
-            <ul className="grid grid-cols-3 gap-x-6 border-t border-rule pt-8">
+            <ul className="grid grid-cols-3 gap-x-6 border-t border-rule-inv pt-8">
               {profile.stats.map((s) => (
                 <li key={s.label}>
                   {/* client direction: stat figures in the hero's signal yellow */}
                   <p className="font-display text-h2 leading-display tracking-display text-signal">
                     <Counter value={s.value} suffix={s.suffix} />
                   </p>
-                  <MonoLabel className="mt-3 text-ink-mute">{s.label}</MonoLabel>
+                  <MonoLabel className="mt-3 text-chalk-mute">{s.label}</MonoLabel>
                 </li>
               ))}
             </ul>

@@ -12,7 +12,7 @@ export default async function Footer() {
   const { email, whatsapp, whatsappIntl, github, linkedin } = profile.contact;
 
   return (
-    <footer className="border-t border-rule-inv bg-machine text-chalk">
+    <footer className="border-t border-rule-inv text-chalk">
       <div className="container space-y-24 pb-10 pt-24">
         <div className="grid grid-cols-1 gap-y-14 md:grid-cols-12 md:gap-x-6">
           <div className="md:col-span-4">
