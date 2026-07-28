@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import { gsap, ScrollTrigger, useGSAP, MM } from "@/lib/gsap";
 import { EASE } from "@/lib/motion";
@@ -24,16 +25,17 @@ const Vortex = dynamic(() => import("@/components/ui/Vortex"), { ssr: false });
  * reflection onto the floor beneath it. The screen-select console floats on
  * the left in 3D, angled toward the screen like a projectionist's panel.
  *
- * The mechanics are unchanged and leak-tested: the stage pins, one viewport of
- * scroll per project, outgoing screen dims, incoming boots. Iframe lifecycle:
- * mount only after 400ms as the active project, hard cap 2 (LRU), evict at two
- * steps away, dead frames never retry. Mobile and reduced motion: no pin, a
- * vertical stack of screens with their reflections — also the no-JS state.
- * PRD §5.4 · §6 · §3.6
+ * The stage does NOT pin (client direction): it is one viewport the page
+ * scrolls straight past, and the programme wall is the only way to change
+ * screens — a click swaps the active one. Iframe lifecycle is unchanged and
+ * leak-tested: mount only after 400ms as the active project, hard cap 2
+ * (LRU), evict at two steps away, dead frames never retry. Mobile and reduced
+ * motion: a vertical stack of screens with their reflections — also the no-JS
+ * state. PRD §5.4 · §6 · §3.6
  */
 export default function Work({ projects }) {
   const stageRef = useRef(null);
-  const stRef = useRef(null);
+  const swapRef = useRef(null);
   const idxRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [mounted, setMounted] = useState([]); // LRU of slugs, most recent last
@@ -104,8 +106,9 @@ export default function Work({ projects }) {
     ? numbered.filter((p) => p.sector === sectorFilter)
     : numbered;
 
-  // The pin. Everything here exists only in the isDesktop && !reduceMotion
-  // branch and reverts wholesale on breakpoint change or unmount.
+  // The stage. Everything here exists only in the isDesktop && !reduceMotion
+  // branch and reverts wholesale on breakpoint change or unmount. No pin —
+  // the programme wall's clicks are the one way to change screens.
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
@@ -159,22 +162,14 @@ export default function Work({ projects }) {
           );
         };
 
-        const st = ScrollTrigger.create({
-          trigger: stage,
-          start: "top top",
-          end: () => "+=" + (projects.length - 1) * window.innerHeight,
-          pin: true,
-          snap: {
-            snapTo: 1 / (projects.length - 1),
-            duration: 0.4,
-            ease: "power2.inOut",
-          },
-          onUpdate: (self) =>
-            swapTo(Math.round(self.progress * (projects.length - 1))),
-        });
-        stRef.current = st;
-        // The marquee's logo buttons jump straight to a rig. PRD §5.3
-        window.__rigJump = jumpTo;
+        // Panel clicks land here; the marquee's logo buttons additionally
+        // bring the auditorium into view first. PRD §5.3
+        swapRef.current = swapTo;
+        window.__rigJump = (i) => {
+          if (window.__lenis) window.__lenis.scrollTo(stage);
+          else stage.scrollIntoView({ behavior: "smooth" });
+          swapTo(i);
+        };
 
         // the auditorium walls: angled toward the screen in real perspective,
         // floating on offset bobs — paused whenever the hall is offscreen (§9)
@@ -205,7 +200,7 @@ export default function Work({ projects }) {
 
         return () => {
           delete window.__rigJump;
-          stRef.current = null;
+          swapRef.current = null;
           idxRef.current = 0;
           setActiveIndex(0);
         };
@@ -214,13 +209,7 @@ export default function Work({ projects }) {
     { scope: stageRef, dependencies: [projects.length] }
   );
 
-  const jumpTo = (i) => {
-    const st = stRef.current;
-    if (!st) return;
-    const y = st.start + i * window.innerHeight;
-    if (window.__lenis) window.__lenis.scrollTo(y);
-    else window.scrollTo({ top: y, behavior: "smooth" });
-  };
+  const jumpTo = (i) => swapRef.current?.(i);
 
   return (
     <section id="work" className="text-chalk">
@@ -282,33 +271,56 @@ export default function Work({ projects }) {
             >
               <span aria-hidden="true" className="absolute right-0 top-0 h-2 w-2 bg-signal" />
               <div className="flex items-baseline justify-between">
-                <MonoLabel className="text-chalk-mute">PROGRAMME</MonoLabel>
-                <MonoLabel className="text-chalk">
+                <MonoLabel as="span" className="text-[0.85rem] text-chalk-mute">
+                  PROGRAMME
+                </MonoLabel>
+                <MonoLabel as="span" className="text-[0.85rem] text-chalk">
                   {String(activeIndex + 1).padStart(2, "0")} /{" "}
                   {String(projects.length).padStart(2, "0")}
                 </MonoLabel>
               </div>
-              <ol className="mt-5 flex flex-1 flex-col justify-center gap-2.5 border-t border-rule-inv pt-5">
+              {/* every film by name AND mark — big enough to read across an
+                  auditorium, click to put it on screen */}
+              <ol className="mt-4 flex flex-1 flex-col justify-evenly border-t border-rule-inv pt-3">
                 {projects.map((p, i) => (
                   <li key={p.slug}>
                     <button
                       type="button"
                       onClick={() => jumpTo(i)}
-                      aria-label={`Go to ${p.client}`}
+                      aria-label={`Show ${p.client} on screen`}
                       aria-current={i === activeIndex ? "true" : undefined}
-                      className={`-mx-2 -my-1 flex w-full items-baseline gap-3 px-2 py-1 text-left font-mono text-mono uppercase tracking-mono transition-colors ${
+                      className={`-mx-2 flex w-full items-center gap-3 px-2 py-1.5 text-left transition-colors ${
                         i === activeIndex
                           ? "text-signal"
-                          : "text-chalk-mute hover:text-chalk"
+                          : "text-chalk/85 hover:text-chalk"
                       }`}
                     >
-                      <span className="shrink-0">{String(i + 1).padStart(2, "0")}</span>
-                      <span className="truncate">{p.client}</span>
+                      <span className="shrink-0 font-mono text-mono tracking-mono text-chalk-mute">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span
+                        className={`relative h-7 w-9 shrink-0 ${
+                          // dark-ink logo, invisible on the machine ground —
+                          // inverted until a light/colour export exists
+                          p.slug === "anowar-ispat" ? "invert" : ""
+                        }`}
+                      >
+                        <Image
+                          src={p.logo}
+                          alt=""
+                          fill
+                          sizes="36px"
+                          className="object-contain object-left"
+                        />
+                      </span>
+                      <span className="truncate font-mono text-[0.92rem] uppercase tracking-[0.06em]">
+                        {p.client}
+                      </span>
                     </button>
                   </li>
                 ))}
               </ol>
-              <MonoLabel className="mt-5 border-t border-rule-inv pt-4 text-chalk-mute">
+              <MonoLabel className="mt-3 border-t border-rule-inv pt-4 text-chalk-mute">
                 SCREEN SELECT — AUDITORIUM 01
               </MonoLabel>
             </div>
@@ -325,43 +337,43 @@ export default function Work({ projects }) {
               }}
             >
               <span aria-hidden="true" className="absolute left-0 top-0 h-2 w-2 bg-signal" />
-              <MonoLabel className="text-chalk-mute">SPEC SHEET</MonoLabel>
+              <MonoLabel className="text-[0.85rem] text-chalk-mute">SPEC SHEET</MonoLabel>
 
               {/* the film now playing — name and a line of truth about it */}
-              <div className="mt-4 border-t border-rule-inv pt-4">
+              <div className="mt-3 border-t border-rule-inv pt-4">
                 <MonoLabel className="text-chalk-mute">ON SCREEN</MonoLabel>
-                <p className="mt-2 font-display text-h3 leading-display tracking-display">
+                <p className="mt-2 font-display text-h2 leading-display tracking-display">
                   <ScrambleText text={projects[activeIndex].client} />
                 </p>
-                <p className="mt-3 text-small leading-relaxed text-chalk-mute">
+                <p className="mt-3 text-body leading-relaxed text-chalk/90">
                   {projects[activeIndex].tagline}
                 </p>
               </div>
 
-              <dl className="mt-5 flex-1 space-y-4 border-t border-rule-inv pt-5">
+              <dl className="mt-4 flex flex-1 flex-col justify-evenly border-t border-rule-inv pt-3">
                 <div>
                   <MonoLabel as="dt" className="text-chalk-mute">SECTOR</MonoLabel>
-                  <MonoLabel as="dd" className="mt-1">
+                  <dd className="mt-1 font-mono text-[1rem] uppercase tracking-[0.08em] text-chalk">
                     <ScrambleText text={projects[activeIndex].sector} />
-                  </MonoLabel>
+                  </dd>
                 </div>
                 <div>
                   <MonoLabel as="dt" className="text-chalk-mute">YEAR</MonoLabel>
-                  <MonoLabel as="dd" className="mt-1">
+                  <dd className="mt-1 font-mono text-[1rem] uppercase tracking-[0.08em] text-chalk">
                     <ScrambleText text={projects[activeIndex].year} />
-                  </MonoLabel>
+                  </dd>
                 </div>
                 <div>
                   <MonoLabel as="dt" className="text-chalk-mute">TYPE</MonoLabel>
-                  <MonoLabel as="dd" className="mt-1">
+                  <dd className="mt-1 font-mono text-[1rem] uppercase tracking-[0.08em] text-chalk">
                     <ScrambleText
                       text={projects[activeIndex].type === "internal" ? "INTERNAL · PKG IT" : "CLIENT · PKG IT"}
                     />
-                  </MonoLabel>
+                  </dd>
                 </div>
                 <div>
                   <MonoLabel as="dt" className="text-chalk-mute">STATUS</MonoLabel>
-                  <MonoLabel as="dd" className="mt-1 flex items-center gap-2">
+                  <dd className="mt-1 flex items-center gap-2.5 font-mono text-[1rem] uppercase tracking-[0.08em] text-chalk">
                     {(() => {
                       const s = statusMap[projects[activeIndex].slug] ?? null;
                       const dot =
@@ -374,22 +386,24 @@ export default function Work({ projects }) {
                               : "bg-chalk-mute/40";
                       return (
                         <>
-                          <span aria-hidden="true" className={`inline-block h-2 w-2 rounded-full ${dot}`} />
+                          <span aria-hidden="true" className={`inline-block h-2.5 w-2.5 rounded-full ${dot}`} />
                           {s ?? "STANDBY"}
                         </>
                       );
                     })()}
-                  </MonoLabel>
+                  </dd>
                 </div>
               </dl>
 
-              <div className="mt-5 border-t border-rule-inv pt-4">
+              <div className="mt-4 border-t border-rule-inv pt-4">
                 <MonoLabel className="text-chalk-mute">BUILT WITH</MonoLabel>
-                <ul className="mt-3 space-y-2">
+                <ul className="mt-3 space-y-2.5">
                   {projects[activeIndex].stack.map((tech) => (
                     <li key={tech} className="flex items-center gap-3">
-                      <TechIcon name={tech} className="h-4 w-4 shrink-0 text-chalk" />
-                      <MonoLabel as="span" className="text-chalk">{tech}</MonoLabel>
+                      <TechIcon name={tech} className="h-5 w-5 shrink-0 text-chalk" />
+                      <span className="font-mono text-[0.92rem] uppercase tracking-[0.08em] text-chalk">
+                        {tech}
+                      </span>
                     </li>
                   ))}
                 </ul>

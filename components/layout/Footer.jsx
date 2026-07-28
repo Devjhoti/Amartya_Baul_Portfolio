@@ -77,12 +77,12 @@ export default async function Footer() {
         </div>
 
         <div>
-          <div className="overflow-hidden">
-            <p className="translate-y-[0.13em] whitespace-nowrap font-display text-[clamp(3.5rem,13.5vw,13.5rem)] uppercase leading-none tracking-display">
-              {profile.name}
-            </p>
-          </div>
-          <div className="mx-2 h-px bg-signal" />
+          {/* sized so the full name always fits the container — the old
+              baseline clip + 13.5vw nowrap cut the wordmark off */}
+          <p className="whitespace-nowrap font-display text-[clamp(2.75rem,9.6vw,9.6rem)] uppercase leading-none tracking-display">
+            {profile.name}
+          </p>
+          <div className="mx-2 mt-2 h-px bg-signal" />
           <div className="flex justify-end pt-3">
             <MonoLabel className="text-chalk-mute">FULL-STACK DEVELOPER — DHAKA</MonoLabel>
           </div>
