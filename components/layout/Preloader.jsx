@@ -50,6 +50,11 @@ const fallTime = (h) => Math.sqrt((2 * Math.max(h, 0.5)) / G);
 const NAME_LINES = ["AMARTYA", "BAUL"];
 const ROLE = "Full-Stack Developer";
 
+// Second load onward in a session: the name still stands up, then the panel
+// leaves — the pre-bike intro, kept as the short cut. Set this to 0 to give
+// every load the full sequence instead.
+const SHORT_MS = 1150;
+
 export default function Preloader() {
   // 0 = playing | 1 = wiping | 2 = gone
   const [phase, setPhase] = useState(0);
@@ -61,22 +66,50 @@ export default function Preloader() {
     // The page is never gated on the panel.
     fireReveal();
 
-    const seen = document.documentElement.hasAttribute("data-intro-seen");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (seen || reduce) {
+    if (reduce) {
       setPhase(2);
       return;
     }
+    // The full show is a first-impression piece; a reload in the same session
+    // gets the short cut rather than the whole ride again.
+    const repeat = SHORT_MS > 0 && document.documentElement.hasAttribute("data-intro-seen");
     try {
       sessionStorage.setItem(SEEN_KEY, "1");
     } catch {
-      /* private mode — it simply plays again */
+      /* private mode — the full sequence simply plays again */
     }
 
     let smoke = null;
     let tl = null;
 
-    const ctx = gsap.context(() => {
+    const runCounter = (seconds) => {
+      const c = { v: 0 };
+      tl.to(
+        c,
+        {
+          v: 100,
+          duration: seconds,
+          ease: "none",
+          onUpdate: () => {
+            if (counterRef.current) {
+              counterRef.current.textContent = String(Math.round(c.v)).padStart(3, "0");
+            }
+          },
+        },
+        0
+      );
+    };
+
+    // The short cut: the CSS domino is already running on its own, so there is
+    // nothing to drive but the counter and the exit. The bike, role, surface
+    // and streak stay in their hidden resting states and never light up.
+    const buildShort = () => {
+      tl = gsap.timeline({ onComplete: () => setPhase(1) });
+      runCounter(SHORT_MS / 1000);
+    };
+
+    const buildFull = () => {
       const root = rootRef.current;
       const stage = root.querySelector("[data-stage]");
       const bike = root.querySelector("[data-bike]");
@@ -302,22 +335,10 @@ export default function Preloader() {
       const tEnd = tGo + run;
 
       /* ---------------------------------------- the counter, over it all */
-      const c = { v: 0 };
-      tl.to(
-        c,
-        {
-          v: 100,
-          duration: tEnd * 0.94,
-          ease: "none",
-          onUpdate: () => {
-            if (counterRef.current) {
-              counterRef.current.textContent = String(Math.round(c.v)).padStart(3, "0");
-            }
-          },
-        },
-        0
-      );
-    }, rootRef);
+      runCounter(tEnd * 0.94);
+    };
+
+    const ctx = gsap.context(repeat ? buildShort : buildFull, rootRef);
 
     /* ---------------------------------------- skip, and a hard failsafe */
     const skip = () => {
@@ -467,8 +488,8 @@ export default function Preloader() {
           margin: 0;
           font-variant-numeric: tabular-nums;
         }
-        /* played already this session, or the reader asked for less motion */
-        html[data-intro-seen] .ab-pre { display: none; }
+        /* a repeat load keeps the panel — it just runs the short cut; only
+           reduced motion and no-JS drop it entirely */
         @media (prefers-reduced-motion: reduce) {
           .ab-pre { display: none; }
         }
