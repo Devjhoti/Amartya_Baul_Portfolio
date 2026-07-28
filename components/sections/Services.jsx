@@ -1,3 +1,8 @@
+"use client";
+
+import { useRef } from "react";
+import { gsap, ScrollTrigger, useGSAP, MM } from "@/lib/gsap";
+import { EASE } from "@/lib/motion";
 import SectionHeader from "@/components/ui/SectionHeader";
 import MonoLabel from "@/components/ui/MonoLabel";
 import RevealText from "@/components/ui/RevealText";
@@ -6,9 +11,14 @@ import RevealText from "@/components/ui/RevealText";
  * What I do — three numbered service plates (client direction: replaces the
  * Industries specimen board). Machine-room language on the site's smoke:
  * hairlined glass cards, ghosted display indices, signal-lit marks, a square
- * bullet checklist and a mono CTA riding to contact. Copy stays in the
- * site's truth-first voice — claims a client can hold the site to. PRD §5.8
- * (revised)
+ * bullet checklist and a mono CTA riding to contact.
+ *
+ * Motion (desktop + motion only): the plates pitch up out of the floor in
+ * sequence, then each assembles — mark pops, ghost index slides home, the
+ * checklist hairline draws and its rows file in. At rest the plates float on
+ * desynced bobs (paused offscreen, §9) and tilt toward the pointer like the
+ * auditorium walls. SSR markup is the mobile / reduced-motion / no-JS state.
+ * PRD §5.8 (revised) · §7.3
  */
 
 const ICONS = {
@@ -71,8 +81,103 @@ const SERVICES = [
 ];
 
 export default function Services() {
+  const rootRef = useRef(null);
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+
+      mm.add(MM, (ctx) => {
+        const { isDesktop, reduceMotion } = ctx.conditions;
+        if (!isDesktop || reduceMotion) return;
+
+        const root = rootRef.current;
+        const cards = gsap.utils.toArray("[data-card]", root);
+        const cleanups = [];
+
+        gsap.set(cards, {
+          y: 64,
+          autoAlpha: 0,
+          rotationX: 8,
+          transformPerspective: 900,
+        });
+
+        cards.forEach((card, i) => {
+          const icon = card.querySelector("[data-svc-icon]");
+          const ghost = card.querySelector("[data-svc-ghost]");
+          const line = card.querySelector("[data-svc-line]");
+          const points = gsap.utils.toArray("[data-svc-point]", card);
+          const cta = card.querySelector("[data-svc-cta]");
+
+          gsap.set(icon, { scale: 0.3, autoAlpha: 0 });
+          gsap.set(ghost, { x: 28, autoAlpha: 0 });
+          gsap.set(line, { scaleX: 0, transformOrigin: "0 50%" });
+          gsap.set(points, { x: -16, autoAlpha: 0 });
+          gsap.set(cta, { autoAlpha: 0 });
+
+          const tl = gsap
+            .timeline({ paused: true, delay: i * 0.15 })
+            .to(card, { y: 0, autoAlpha: 1, rotationX: 0, duration: 0.85, ease: "power3.out" }, 0)
+            .to(icon, { scale: 1, autoAlpha: 1, duration: 0.55, ease: "back.out(1.8)" }, 0.35)
+            .to(ghost, { x: 0, autoAlpha: 1, duration: 0.6, ease: EASE.out }, 0.4)
+            .to(line, { scaleX: 1, duration: 0.7, ease: "power3.inOut" }, 0.45)
+            .to(points, { x: 0, autoAlpha: 1, duration: 0.5, ease: EASE.out, stagger: 0.08 }, 0.55)
+            .to(cta, { autoAlpha: 1, duration: 0.4, ease: "power2.out" }, 0.95);
+
+          ScrollTrigger.create({
+            trigger: root.querySelector("ul"),
+            start: "top 78%",
+            once: true,
+            onEnter: () => tl.play(),
+          });
+
+          // pointer tilt, walls-style — quickTo so it never fights itself
+          const rx = gsap.quickTo(card, "rotationX", { duration: 0.5, ease: "power2.out" });
+          const ry = gsap.quickTo(card, "rotationY", { duration: 0.5, ease: "power2.out" });
+          const onMove = (e) => {
+            const r = card.getBoundingClientRect();
+            ry(((e.clientX - r.left) / r.width - 0.5) * 7);
+            rx(((e.clientY - r.top) / r.height - 0.5) * -6);
+          };
+          const onLeave = () => {
+            rx(0);
+            ry(0);
+          };
+          card.addEventListener("pointermove", onMove);
+          card.addEventListener("pointerleave", onLeave);
+          cleanups.push(() => {
+            card.removeEventListener("pointermove", onMove);
+            card.removeEventListener("pointerleave", onLeave);
+          });
+        });
+
+        // idle float — desynced bobs, asleep whenever the section is (§9)
+        const bobs = cards.map((card, i) =>
+          gsap.to(card, {
+            y: i % 2 ? -6 : 6,
+            duration: 3.2 + i * 0.5,
+            yoyo: true,
+            repeat: -1,
+            ease: "sine.inOut",
+            paused: true,
+            delay: 1.6 + i * 0.3,
+          })
+        );
+        ScrollTrigger.create({
+          trigger: root,
+          start: "top bottom",
+          end: "bottom top",
+          onToggle: (s) => bobs.forEach((t) => (s.isActive ? t.play() : t.pause())),
+        });
+
+        return () => cleanups.forEach((fn) => fn());
+      });
+    },
+    { scope: rootRef }
+  );
+
   return (
-    <section className="py-section-half text-chalk">
+    <section ref={rootRef} className="py-section-half text-chalk">
       <div className="container space-y-14">
         <div className="space-y-10">
           <SectionHeader
@@ -84,24 +189,26 @@ export default function Services() {
           <RevealText as="h2" text="What I do." className="max-w-[10ch] text-h2" />
         </div>
 
-        <ul className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {SERVICES.map((s, i) => (
-            <RevealText
+        <ul className="grid grid-cols-1 gap-6 [perspective:1400px] lg:grid-cols-3">
+          {SERVICES.map((s) => (
+            <li
               key={s.index}
-              as="li"
-              variant="fade"
-              lineIndex={i}
-              className="group relative flex flex-col border border-white/15 bg-white/[0.04] p-7 transition-colors hover:border-white/35"
+              data-card=""
+              className="group relative flex flex-col border border-white/15 bg-white/[0.04] p-7 transition-colors [will-change:transform] hover:border-white/35"
             >
               {/* ghosted display index, the card's registration mark */}
               <span
+                data-svc-ghost=""
                 aria-hidden="true"
                 className="pointer-events-none absolute right-5 top-4 font-display text-[4.5rem] leading-none tracking-display text-white/[0.07] transition-colors group-hover:text-white/[0.12]"
               >
                 {s.index}
               </span>
 
-              <span className="flex h-11 w-11 items-center justify-center border border-rule-inv bg-white/[0.05] text-signal">
+              <span
+                data-svc-icon=""
+                className="flex h-11 w-11 items-center justify-center border border-rule-inv bg-white/[0.05] text-signal"
+              >
                 {ICONS[s.icon]}
               </span>
 
@@ -110,9 +217,15 @@ export default function Services() {
               </h3>
               <p className="mt-3 text-body leading-relaxed text-chalk-mute">{s.body}</p>
 
-              <ul className="mt-6 flex-1 space-y-2.5 border-t border-rule-inv pt-5">
+              <ul className="relative mt-6 flex-1 space-y-2.5 pt-5">
+                {/* the checklist's hairline draws itself in */}
+                <span
+                  data-svc-line=""
+                  aria-hidden="true"
+                  className="absolute left-0 top-0 h-px w-full bg-rule-inv"
+                />
                 {s.points.map((point) => (
-                  <li key={point} className="flex items-baseline gap-3">
+                  <li key={point} data-svc-point="" className="flex items-baseline gap-3">
                     <span
                       aria-hidden="true"
                       className="h-1.5 w-1.5 shrink-0 translate-y-[-1px] bg-signal"
@@ -122,12 +235,12 @@ export default function Services() {
                 ))}
               </ul>
 
-              <MonoLabel as="p" className="mt-7">
+              <MonoLabel as="p" data-svc-cta="" className="mt-7">
                 <a href="#contact" className="link-draw">
                   DISCUSS A PROJECT <span aria-hidden="true">↗</span>
                 </a>
               </MonoLabel>
-            </RevealText>
+            </li>
           ))}
         </ul>
       </div>

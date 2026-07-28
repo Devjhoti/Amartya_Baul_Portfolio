@@ -38,7 +38,7 @@ export default function ScrollProgress() {
         // element-triggered STs on 1-line-tall plates have degenerate spans.
         // document-level query: useGSAP's scope would confine a string selector
         // to this component's own (plateless) subtree.
-        const plates = [...document.querySelectorAll("[data-plate-index]")];
+        let plates = [...document.querySelectorAll("[data-plate-index]")];
         let visible = false;
         let current = null;
         const watchST = plates.length
@@ -46,6 +46,12 @@ export default function ScrollProgress() {
               start: 0,
               end: "max",
               onUpdate: () => {
+                // HMR and route changes replace plate nodes — a detached one
+                // reads rect 0 and wins forever. Re-collect when any died.
+                if (plates.some((el) => !el.isConnected)) {
+                  plates = [...document.querySelectorAll("[data-plate-index]")];
+                  current = null;
+                }
                 const line = window.innerHeight * 0.7;
                 let next = null;
                 for (const el of plates) {
