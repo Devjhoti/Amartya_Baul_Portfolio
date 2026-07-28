@@ -19,7 +19,7 @@ export default async function About() {
         <SectionHeader index="03" label="ABOUT" meta="DHAKA, BANGLADESH · GMT+6" />
 
         <div className="grid grid-cols-1 gap-y-12 lg:grid-cols-12 lg:gap-x-6">
-          <div className="lg:col-span-5">
+          <RevealText as="div" variant="slide-left" className="lg:col-span-5">
             <PortraitUnmask
               src={assets.profile}
               alt="Amartya Baul"
@@ -28,9 +28,13 @@ export default async function About() {
             <MonoLabel className="mt-3 text-ink-mute">
               AMARTYA BAUL — FULL-STACK DEVELOPER
             </MonoLabel>
-          </div>
+          </RevealText>
 
-          <div className="flex flex-col justify-between gap-14 lg:col-span-6 lg:col-start-7">
+          <RevealText
+            as="div"
+            variant="slide-right"
+            className="flex flex-col justify-between gap-14 lg:col-span-6 lg:col-start-7"
+          >
             <div className="space-y-7">
               <RevealText
                 as="h2"
@@ -47,14 +51,15 @@ export default async function About() {
             <ul className="grid grid-cols-3 gap-x-6 border-t border-rule pt-8">
               {profile.stats.map((s) => (
                 <li key={s.label}>
-                  <p className="font-display text-h2 leading-display tracking-display">
+                  {/* client direction: stat figures in the hero's signal yellow */}
+                  <p className="font-display text-h2 leading-display tracking-display text-signal">
                     <Counter value={s.value} suffix={s.suffix} />
                   </p>
                   <MonoLabel className="mt-3 text-ink-mute">{s.label}</MonoLabel>
                 </li>
               ))}
             </ul>
-          </div>
+          </RevealText>
         </div>
       </div>
     </section>

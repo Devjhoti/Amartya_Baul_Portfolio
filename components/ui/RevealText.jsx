@@ -37,14 +37,18 @@ export default function RevealText({
 
         const el = ref.current;
 
-        if (variant === "fade") {
-          gsap.set(el, { autoAlpha: 0, visibility: "visible" });
+        if (variant !== "chars") {
+          // "fade" | "slide-left" | "slide-right" — block-level entrances
+          const fromX = variant === "slide-left" ? -80 : variant === "slide-right" ? 80 : 0;
+          gsap.set(el, { autoAlpha: 0, x: fromX, visibility: "visible", willChange: "transform, opacity" });
           const tween = gsap.to(el, {
             autoAlpha: 1,
-            duration: 0.9,
+            x: 0,
+            duration: 1,
             ease: EASE.out,
             paused: true,
             delay: lineIndex * 0.08,
+            onComplete: () => gsap.set(el, { clearProps: "willChange" }),
           });
           const fontsReady = Promise.race([
             document.fonts?.ready ?? Promise.resolve(),
@@ -136,7 +140,7 @@ export default function RevealText({
     { scope: ref }
   );
 
-  if (variant === "fade") {
+  if (variant !== "chars") {
     return (
       <Tag ref={ref} className={className} data-st-hide="">
         {children}
