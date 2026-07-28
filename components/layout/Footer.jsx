@@ -1,5 +1,6 @@
 import Monogram from "@/components/ui/Monogram";
 import MonoLabel from "@/components/ui/MonoLabel";
+import CubeRollName from "@/components/ui/CubeRollName";
 import { getProfile } from "@/lib/content";
 
 /**
@@ -77,11 +78,14 @@ export default async function Footer() {
         </div>
 
         <div>
-          {/* sized so the full name always fits the container — the old
-              baseline clip + 13.5vw nowrap cut the wordmark off */}
-          <p className="whitespace-nowrap font-display text-[clamp(2.75rem,9.6vw,9.6rem)] uppercase leading-none tracking-display">
-            {profile.name}
-          </p>
+          {/* centred, sized to always fit the container, and rolling — each
+              character a prism turning over in a travelling wave */}
+          <div className="text-center">
+            <CubeRollName
+              text={profile.name}
+              className="whitespace-nowrap font-display text-[clamp(2.75rem,9.6vw,9.6rem)] uppercase leading-none tracking-display"
+            />
+          </div>
           <div className="mx-2 mt-2 h-px bg-signal" />
           <div className="flex justify-end pt-3">
             <MonoLabel className="text-chalk-mute">FULL-STACK DEVELOPER — DHAKA</MonoLabel>
