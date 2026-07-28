@@ -20,12 +20,19 @@ const FRAME = 1 / 30;
 
 export default function HeroAtmosphere() {
   const wrapRef = useRef(null);
-  const canvasRef = useRef(null);
 
   useEffect(() => {
     const wrap = wrapRef.current;
-    const canvas = canvasRef.current;
-    if (!wrap || !canvas) return;
+    if (!wrap) return;
+
+    // The effect OWNS its canvas: created here, removed on cleanup. The
+    // teardown force-loses the GL context, and a canvas whose context is lost
+    // never hands out another — a React-rendered canvas surviving the effect
+    // cycle (StrictMode in dev remounts effects on the same DOM node) left
+    // the second run with a dead context and only the static fallback.
+    const canvas = document.createElement("canvas");
+    canvas.className = "h-full w-full";
+    wrap.appendChild(canvas);
 
     // Context creation can fail on blocked GPUs, remote sessions and headless
     // environments — in that case the procedural fallback beneath simply stays.
@@ -38,6 +45,7 @@ export default function HeroAtmosphere() {
         powerPreference: "low-power",
       });
     } catch {
+      canvas.remove();
       return;
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -126,12 +134,9 @@ export default function HeroAtmosphere() {
       material.dispose();
       renderer.dispose();
       renderer.forceContextLoss?.();
+      canvas.remove();
     };
   }, []);
 
-  return (
-    <div ref={wrapRef} aria-hidden="true" className="absolute inset-0">
-      <canvas ref={canvasRef} className="h-full w-full" />
-    </div>
-  );
+  return <div ref={wrapRef} aria-hidden="true" className="absolute inset-0" />;
 }
