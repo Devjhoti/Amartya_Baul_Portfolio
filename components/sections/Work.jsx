@@ -282,19 +282,12 @@ export default function Work({ projects }) {
               {/* every film by name AND mark — big enough to read across an
                   auditorium, click to put it on screen */}
               <ol className="mt-4 flex flex-1 flex-col justify-evenly border-t border-rule-inv pt-3">
-                {projects.map((p, i) => (
-                  <li key={p.slug}>
-                    <button
-                      type="button"
-                      onClick={() => jumpTo(i)}
-                      aria-label={`Show ${p.client} on screen`}
-                      aria-current={i === activeIndex ? "true" : undefined}
-                      className={`-mx-2 flex w-full items-center gap-3 px-2 py-1.5 text-left transition-colors ${
-                        i === activeIndex
-                          ? "text-signal"
-                          : "text-chalk/85 hover:text-chalk"
-                      }`}
-                    >
+                {projects.map((p, i) => {
+                  const rowClass = `-mx-2 flex w-full items-center gap-3 px-2 py-1.5 text-left transition-colors ${
+                    i === activeIndex ? "text-signal" : "text-chalk/85 hover:text-chalk"
+                  }`;
+                  const row = (
+                    <>
                       <span className="shrink-0 font-mono text-mono tracking-mono text-chalk-mute">
                         {String(i + 1).padStart(2, "0")}
                       </span>
@@ -316,9 +309,39 @@ export default function Work({ projects }) {
                       <span className="truncate font-mono text-[0.92rem] uppercase tracking-[0.06em]">
                         {p.client}
                       </span>
-                    </button>
-                  </li>
-                ))}
+                    </>
+                  );
+                  // client direction: the employer's own entry leaves the
+                  // auditorium — it opens the agency site itself
+                  return (
+                    <li key={p.slug}>
+                      {p.slug === "pkg-it" ? (
+                        <a
+                          href="https://pkgit.net/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="PKG IT — open pkgit.net"
+                          className={rowClass}
+                        >
+                          {row}
+                          <span aria-hidden="true" className="ml-auto shrink-0 font-mono text-mono">
+                            ↗
+                          </span>
+                        </a>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => jumpTo(i)}
+                          aria-label={`Show ${p.client} on screen`}
+                          aria-current={i === activeIndex ? "true" : undefined}
+                          className={rowClass}
+                        >
+                          {row}
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
               </ol>
               <MonoLabel className="mt-3 border-t border-rule-inv pt-4 text-chalk-mute">
                 SCREEN SELECT — AUDITORIUM 01
@@ -395,15 +418,19 @@ export default function Work({ projects }) {
                 </div>
               </dl>
 
+              {/* marks only, side by side, lit in signal — names live in the
+                  title tooltip and for screen readers */}
               <div className="mt-4 border-t border-rule-inv pt-4">
                 <MonoLabel className="text-chalk-mute">BUILT WITH</MonoLabel>
-                <ul className="mt-3 space-y-2.5">
+                <ul className="mt-3 flex flex-wrap gap-2.5">
                   {projects[activeIndex].stack.map((tech) => (
-                    <li key={tech} className="flex items-center gap-3">
-                      <TechIcon name={tech} className="h-5 w-5 shrink-0 text-chalk" />
-                      <span className="font-mono text-[0.92rem] uppercase tracking-[0.08em] text-chalk">
-                        {tech}
-                      </span>
+                    <li
+                      key={tech}
+                      title={tech}
+                      className="flex h-11 w-11 items-center justify-center border border-rule-inv bg-white/[0.05] text-signal transition-colors hover:border-signal"
+                    >
+                      <TechIcon name={tech} className="h-6 w-6" />
+                      <span className="sr-only">{tech}</span>
                     </li>
                   ))}
                 </ul>
