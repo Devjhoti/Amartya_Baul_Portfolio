@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import { gsap, ScrollTrigger, useGSAP, MM } from "@/lib/gsap";
 import { EASE } from "@/lib/motion";
 import { useIsDesktop, usePrefersReducedMotion } from "@/lib/useIsDesktop";
@@ -178,13 +177,13 @@ export default function Work({ projects }) {
         const wallR = stage.querySelector("[data-wall-right]");
         if (wallL && wallR) {
           gsap.set(wallL, {
-            rotationY: 24,
-            transformPerspective: 1100,
+            rotationY: 26,
+            transformPerspective: 1200,
             transformOrigin: "left center",
           });
           gsap.set(wallR, {
-            rotationY: -24,
-            transformPerspective: 1100,
+            rotationY: -26,
+            transformPerspective: 1200,
             transformOrigin: "right center",
           });
           const bobs = [
@@ -218,9 +217,6 @@ export default function Work({ projects }) {
     else window.scrollTo({ top: y, behavior: "smooth" });
   };
 
-  const REFLECTION_MASK =
-    "linear-gradient(to bottom, rgba(0,0,0,0.55), transparent 85%)";
-
   return (
     <section id="work" className="bg-machine text-chalk">
       <div className="container pt-section-half">
@@ -237,9 +233,15 @@ export default function Work({ projects }) {
             className="max-w-[13ch] text-display"
           />
         </div>
+      </div>
 
-        <div ref={stageRef} className="relative mt-16 space-y-24 pb-20 lg:space-y-0 lg:pb-0">
-          {projects.map((p) => (
+      {/* the auditorium is full-bleed: the walls run from the viewport edges
+          to the screen edges, exactly the marked trapezoids */}
+      <div
+        ref={stageRef}
+        className="relative mt-16 space-y-24 px-[var(--page-margin)] pb-20 lg:space-y-0 lg:px-0 lg:pb-0"
+      >
+          {projects.map((p, i) => (
             <div key={p.slug} data-rig="">
               {/* the screen — pitched back a touch, like looking up at it */}
               <div className="[perspective:1400px]">
@@ -249,6 +251,7 @@ export default function Work({ projects }) {
                     priority={false}
                     mountIframe={mounted.includes(p.slug)}
                     failed={failed.includes(p.slug)}
+                    reflectLive={i === activeIndex}
                     onFail={handleFail}
                     onStatus={handleStatus}
                   />
@@ -259,21 +262,6 @@ export default function Work({ projects }) {
               <div className="mt-1 lg:hidden">
                 <LabelPlate project={p} />
               </div>
-
-              {/* screen light reflecting off the auditorium floor */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none relative mt-3 h-24 overflow-hidden opacity-40 lg:h-32"
-                style={{ WebkitMaskImage: REFLECTION_MASK, maskImage: REFLECTION_MASK }}
-              >
-                <Image
-                  src={p.poster}
-                  alt=""
-                  fill
-                  sizes="(min-width: 1024px) 60vw, 100vw"
-                  className="-scale-y-100 object-cover object-bottom blur-[5px]"
-                />
-              </div>
             </div>
           ))}
 
@@ -281,7 +269,7 @@ export default function Work({ projects }) {
           <div className="pointer-events-none absolute left-0 top-1/2 z-20 hidden -translate-y-1/2 [perspective:1200px] lg:block">
             <div
               data-wall-left=""
-              className="pointer-events-auto relative flex min-h-[min(700px,78vh)] w-[280px] flex-col border border-white/20 bg-white/[0.03] px-6 py-6 backdrop-blur-md"
+              className="pointer-events-auto relative flex h-[86vh] w-[calc((100vw-min(88vw,(100vh-330px)*1.6))/2+34px)] min-w-[270px] flex-col border border-white/20 bg-white/[0.03] px-6 py-7 backdrop-blur-md"
               style={{
                 boxShadow:
                   "0 24px 48px -16px rgba(0,0,0,0.7), inset 1px 1px 0 rgba(255,255,255,0.25)",
@@ -325,7 +313,7 @@ export default function Work({ projects }) {
           <div className="pointer-events-none absolute right-0 top-1/2 z-20 hidden -translate-y-1/2 [perspective:1200px] lg:block">
             <div
               data-wall-right=""
-              className="pointer-events-auto relative flex min-h-[min(700px,78vh)] w-[290px] flex-col border border-white/20 bg-white/[0.03] px-6 py-6 backdrop-blur-md"
+              className="pointer-events-auto relative flex h-[86vh] w-[calc((100vw-min(88vw,(100vh-330px)*1.6))/2+34px)] min-w-[280px] flex-col border border-white/20 bg-white/[0.03] px-6 py-7 backdrop-blur-md"
               style={{
                 boxShadow:
                   "0 24px 48px -16px rgba(0,0,0,0.7), inset 1px 1px 0 rgba(255,255,255,0.25)",
@@ -403,7 +391,6 @@ export default function Work({ projects }) {
               </div>
             </div>
           </div>
-        </div>
       </div>
 
       <div className="border-t border-rule-inv bg-concrete py-section-half text-ink">

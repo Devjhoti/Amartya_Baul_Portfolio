@@ -16,9 +16,20 @@ import RigChassis from "./RigChassis";
  */
 const BOOT_TIMEOUT = 6000;
 
-export default function LiveRig({ project, mountIframe, failed, priority, onFail, onStatus }) {
+const REFLECTION_MASK = "linear-gradient(to bottom, rgba(0,0,0,0.55), transparent 85%)";
+
+export default function LiveRig({
+  project,
+  mountIframe,
+  failed,
+  priority,
+  onFail,
+  onStatus,
+  reflectLive = false,
+}) {
   const screenRef = useRef(null);
   const frameWrapRef = useRef(null);
+  const reflWrapRef = useRef(null);
   const posterRef = useRef(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -42,13 +53,15 @@ export default function LiveRig({ project, mountIframe, failed, priority, onFail
     const wrap = frameWrapRef.current;
     if (!screen || !wrap) return;
     const fit = () => {
-      wrap.style.transform = `scale(${screen.clientWidth / 1440})`;
+      const t = `scale(${screen.clientWidth / 1440})`;
+      wrap.style.transform = t;
+      if (reflWrapRef.current) reflWrapRef.current.style.transform = t;
     };
     fit();
     const ro = new ResizeObserver(fit);
     ro.observe(screen);
     return () => ro.disconnect();
-  }, [mountIframe]);
+  }, [mountIframe, loaded, reflectLive]);
 
   // Boot watchdog: no load event within 6s → dead, poster forever.
   useEffect(() => {
@@ -72,7 +85,10 @@ export default function LiveRig({ project, mountIframe, failed, priority, onFail
     }
   }, [status]);
 
+  const liveReflection = reflectLive && mountIframe && loaded && !failed;
+
   return (
+    <div>
     <a
       href={project.url}
       target="_blank"
@@ -117,5 +133,40 @@ export default function LiveRig({ project, mountIframe, failed, priority, onFail
         }
       />
     </a>
+
+      {/* light off the auditorium floor — a live mirror of the running frame
+          for the active screen (one extra document at most), the poster's
+          mirror otherwise */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none relative mt-3 h-24 overflow-hidden opacity-40 lg:h-32"
+        style={{ WebkitMaskImage: REFLECTION_MASK, maskImage: REFLECTION_MASK }}
+      >
+        {liveReflection ? (
+          <div
+            ref={reflWrapRef}
+            className="absolute left-0 top-0 h-[900px] w-[1440px] origin-top-left blur-[5px]"
+          >
+            <iframe
+              src={project.url}
+              title=""
+              tabIndex={-1}
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin"
+              referrerPolicy="no-referrer"
+              className="pointer-events-none h-[920px] w-[1460px] -scale-y-100 border-0"
+            />
+          </div>
+        ) : (
+          <Image
+            src={project.poster}
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 60vw, 100vw"
+            className="-scale-y-100 object-cover object-bottom blur-[5px]"
+          />
+        )}
+      </div>
+    </div>
   );
 }
