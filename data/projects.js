@@ -27,6 +27,7 @@ export const projects = [
     year: "2025",
     duration: "",
     stack: ["React", "Vite", "GSAP", "Lenis"],
+    tagline: "Group identity for a fashion and woven-textiles house — collections first, credentials in support.",
     challenge:
       "IDS Group is a fashion and woven-textiles group whose buyers and partners judge it the way they judge a collection — visually. The group needed one corporate address that could stand that scrutiny: collections, sustainability, careers and its partner network, presented with the confidence of a fashion house rather than a trading company.",
     approach: [
@@ -54,6 +55,7 @@ export const projects = [
     year: "2025",
     duration: "",
     stack: ["Next.js", "React", "Tailwind CSS"],
+    tagline: "Cambridge & Edexcel school site — the whole admission path readable by a parent in one evening.",
     challenge:
       "Parents choosing a school compare curricula, fees and admission steps across many websites, and most school sites bury exactly those answers. Paul's Academy needed its Cambridge and Edexcel pathways, its eight programmes, and the entire admission process readable by a parent in one evening.",
     approach: [
@@ -82,6 +84,7 @@ export const projects = [
     year: "2025",
     duration: "",
     stack: ["React", "Vite", "GSAP", "Three.js", "Framer Motion"],
+    tagline: "Passenger, hospital, cargo and home lifts — catalogued the way a purchaser actually shops.",
     challenge:
       "A lift is a considered purchase — buyers arrive with a building, a budget and safety questions, and they need to trust the vendor before inviting them on site. Property Lifts needed its full range — passenger, hospital, cargo, home and imported units — presented with enough engineering confidence to earn that first call.",
     approach: [
@@ -109,6 +112,7 @@ export const projects = [
     year: "2025",
     duration: "",
     stack: ["React", "Vite", "GSAP", "Lenis"],
+    tagline: "Six-layer German-engineered roofing, with its full spec sheet finally on the web.",
     challenge:
       "Anwar Cement Sheet sells a technical product through dealers and builders who need exact specifications — thickness, sizes, layer construction — and those questions were being answered one phone call at a time. The product needed its specification sheet on the web, readable on a phone in a hardware shop.",
     approach: [
@@ -136,6 +140,7 @@ export const projects = [
     year: "2025",
     duration: "",
     stack: ["React", "Vite", "GSAP", "Lenis"],
+    tagline: "Sylhet hospitality sold direct — rooms, tours and event halls without the aggregators.",
     challenge:
       "Hotel The Glory competes for Sylhet's travellers against booking platforms that show its rooms next to everyone else's. The hotel needed its own address to sell what aggregators flatten: the rooms themselves, the location near the airport and the shrine, the tour desk, and the event halls.",
     approach: [
@@ -163,6 +168,7 @@ export const projects = [
     year: "2025",
     duration: "",
     stack: ["React", "Vite", "GSAP", "Lenis"],
+    tagline: "Fuels, additives and lubricants routed by audience, with published prices kept current.",
     challenge:
       "Caltex's Bangladesh range spans fuels, additives and lubricants for everyone from a scooter owner to a fleet operator — audiences with completely different questions. The brand needed one site that routes each of them to the right product and keeps published prices current.",
     approach: [
@@ -190,6 +196,7 @@ export const projects = [
     year: "2025",
     duration: "",
     stack: ["Next.js", "React", "Tailwind CSS"],
+    tagline: "Nine coating categories under one address — and colour you can try before you buy.",
     challenge:
       "Rainbow Paints, a concern of RFL Group, covers nine coating categories from decorative walls to marine and powder coating. Homeowners and industrial buyers were being served by the same brochure — and neither could see colour, the one thing paint has to show.",
     approach: [
@@ -217,6 +224,7 @@ export const projects = [
     year: "2025",
     duration: "",
     stack: ["HTML", "CSS", "JavaScript", "GSAP"],
+    tagline: "Furniture from recycled plastic — the process told first, so provenance reads as quality.",
     challenge:
       "TEL Plastics makes furniture out of recycled plastic — a product whose origin is its selling point and its objection at once. The site had to make 'made from waste' read as engineering and care rather than compromise, for buyers comparing against virgin-plastic furniture.",
     approach: [
@@ -244,6 +252,7 @@ export const projects = [
     year: "2025",
     duration: "",
     stack: ["React", "Vite", "GSAP", "Lenis"],
+    tagline: "The agency's own portfolio — capability demonstrated in motion, not described in bullets.",
     challenge:
       "An agency that sells design has exactly one credential that matters: its own website. PKG IT needed a portfolio that demonstrates — in motion, interaction and typography — the standard it promises clients, with the client list to back it up.",
     approach: [
@@ -270,6 +279,7 @@ export const projects = [
     year: "2025",
     duration: "",
     stack: ["React", "Vite", "Three.js"],
+    tagline: "TMT rebar by grade — steel presented with the authority of the structures it carries.",
     challenge:
       "Anwar Ispat sells rebar into an infrastructure market where every mill claims strength. The brand needed its product grades — and the scale of what gets built with them — presented with enough authority to matter on a procurement shortlist.",
     approach: [
@@ -296,6 +306,7 @@ export const projects = [
     year: "2025",
     duration: "",
     stack: ["React", "Vite"],
+    tagline: "uPVC piping led by ISO certifications and public-sector references, not price.",
     challenge:
       "A1 Polymer sells uPVC piping into projects where failure is buried underground — so institutional buyers check certification and track record before price. The site needed to carry the ISO certifications, the public-sector reference list and the Anwar Group lineage in one authoritative place.",
     approach: [

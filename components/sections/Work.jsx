@@ -277,51 +277,45 @@ export default function Work({ projects }) {
             </div>
           ))}
 
-          {/* left auditorium wall — screen select + the name on screen. §5.4 */}
+          {/* left auditorium wall — the full programme, all 11 by name. §5.4 */}
           <div className="pointer-events-none absolute left-0 top-1/2 z-20 hidden -translate-y-1/2 [perspective:1200px] lg:block">
             <div
               data-wall-left=""
-              className="pointer-events-auto relative flex min-h-[min(560px,62vh)] w-[250px] flex-col border border-white/20 bg-white/[0.03] px-5 py-6 backdrop-blur-md"
+              className="pointer-events-auto relative flex min-h-[min(700px,78vh)] w-[280px] flex-col border border-white/20 bg-white/[0.03] px-6 py-6 backdrop-blur-md"
               style={{
                 boxShadow:
                   "0 24px 48px -16px rgba(0,0,0,0.7), inset 1px 1px 0 rgba(255,255,255,0.25)",
               }}
             >
               <span aria-hidden="true" className="absolute right-0 top-0 h-2 w-2 bg-signal" />
-              <MonoLabel className="text-chalk">
-                {String(activeIndex + 1).padStart(2, "0")} /{" "}
-                {String(projects.length).padStart(2, "0")}
-              </MonoLabel>
-              <ol className="mt-4 grid grid-cols-6 gap-x-1 gap-y-1.5">
+              <div className="flex items-baseline justify-between">
+                <MonoLabel className="text-chalk-mute">PROGRAMME</MonoLabel>
+                <MonoLabel className="text-chalk">
+                  {String(activeIndex + 1).padStart(2, "0")} /{" "}
+                  {String(projects.length).padStart(2, "0")}
+                </MonoLabel>
+              </div>
+              <ol className="mt-5 flex flex-1 flex-col justify-center gap-2.5 border-t border-rule-inv pt-5">
                 {projects.map((p, i) => (
                   <li key={p.slug}>
                     <button
                       type="button"
                       onClick={() => jumpTo(i)}
-                      title={p.client}
                       aria-label={`Go to ${p.client}`}
                       aria-current={i === activeIndex ? "true" : undefined}
-                      className={`-mx-1 -my-0.5 px-1 py-0.5 font-mono text-mono uppercase tracking-mono transition-colors ${
+                      className={`-mx-2 -my-1 flex w-full items-baseline gap-3 px-2 py-1 text-left font-mono text-mono uppercase tracking-mono transition-colors ${
                         i === activeIndex
                           ? "text-signal"
                           : "text-chalk-mute hover:text-chalk"
                       }`}
                     >
-                      {String(i + 1).padStart(2, "0")}
+                      <span className="shrink-0">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="truncate">{p.client}</span>
                     </button>
                   </li>
                 ))}
               </ol>
-              <div className="mt-6 flex flex-1 flex-col justify-center border-t border-rule-inv pt-5">
-                <MonoLabel className="text-chalk-mute">ON SCREEN</MonoLabel>
-                <p className="mt-3 font-display text-h2 leading-display tracking-display">
-                  <ScrambleText text={projects[activeIndex].client} />
-                </p>
-                <MonoLabel className="mt-4 text-chalk-mute">
-                  <ScrambleText text={projects[activeIndex].sector} />
-                </MonoLabel>
-              </div>
-              <MonoLabel className="mt-6 border-t border-rule-inv pt-4 text-chalk-mute">
+              <MonoLabel className="mt-5 border-t border-rule-inv pt-4 text-chalk-mute">
                 SCREEN SELECT — AUDITORIUM 01
               </MonoLabel>
             </div>
@@ -331,16 +325,27 @@ export default function Work({ projects }) {
           <div className="pointer-events-none absolute right-0 top-1/2 z-20 hidden -translate-y-1/2 [perspective:1200px] lg:block">
             <div
               data-wall-right=""
-              className="pointer-events-auto relative flex min-h-[min(560px,62vh)] w-[260px] flex-col border border-white/20 bg-white/[0.03] px-5 py-6 backdrop-blur-md"
+              className="pointer-events-auto relative flex min-h-[min(700px,78vh)] w-[290px] flex-col border border-white/20 bg-white/[0.03] px-6 py-6 backdrop-blur-md"
               style={{
                 boxShadow:
                   "0 24px 48px -16px rgba(0,0,0,0.7), inset 1px 1px 0 rgba(255,255,255,0.25)",
               }}
             >
               <span aria-hidden="true" className="absolute left-0 top-0 h-2 w-2 bg-signal" />
-              <MonoLabel className="text-chalk">SPEC SHEET</MonoLabel>
+              <MonoLabel className="text-chalk-mute">SPEC SHEET</MonoLabel>
 
-              <dl className="mt-5 flex-1 space-y-4">
+              {/* the film now playing — name and a line of truth about it */}
+              <div className="mt-4 border-t border-rule-inv pt-4">
+                <MonoLabel className="text-chalk-mute">ON SCREEN</MonoLabel>
+                <p className="mt-2 font-display text-h3 leading-display tracking-display">
+                  <ScrambleText text={projects[activeIndex].client} />
+                </p>
+                <p className="mt-3 text-small leading-relaxed text-chalk-mute">
+                  {projects[activeIndex].tagline}
+                </p>
+              </div>
+
+              <dl className="mt-5 flex-1 space-y-4 border-t border-rule-inv pt-5">
                 <div>
                   <MonoLabel as="dt" className="text-chalk-mute">SECTOR</MonoLabel>
                   <MonoLabel as="dd" className="mt-1">
