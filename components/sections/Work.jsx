@@ -268,7 +268,9 @@ export default function Work({ projects }) {
               <ol className="mt-4 flex flex-1 flex-col justify-evenly border-t border-rule-inv pt-3">
                 {projects.map((p, i) => {
                   const rowClass = `-mx-2 flex w-full items-center gap-3 px-2 py-1.5 text-left transition-colors ${
-                    i === activeIndex ? "text-signal" : "text-chalk/85 hover:text-chalk"
+                    i === activeIndex
+                      ? "text-signal"
+                      : "text-[rgba(232,234,229,0.85)] hover:text-chalk"
                   }`;
                   const row = (
                     <>
@@ -352,7 +354,7 @@ export default function Work({ projects }) {
                 <p className="mt-2 font-display text-h2 leading-display tracking-display">
                   <ScrambleText text={projects[activeIndex].client} />
                 </p>
-                <p className="mt-3 text-body leading-relaxed text-chalk/90">
+                <p className="mt-3 text-body leading-relaxed text-[rgba(232,234,229,0.9)]">
                   {projects[activeIndex].tagline}
                 </p>
               </div>
@@ -390,7 +392,7 @@ export default function Work({ projects }) {
                             ? "animate-pulse bg-signal-dim"
                             : s === "OFFLINE"
                               ? "bg-chalk-mute"
-                              : "bg-chalk-mute/40";
+                              : "bg-[rgba(150,160,152,0.4)]";
                       return (
                         <>
                           <span aria-hidden="true" className={`inline-block h-2.5 w-2.5 rounded-full ${dot}`} />
@@ -447,7 +449,9 @@ export default function Work({ projects }) {
           {/* machine-toned scrims, not black: a faint veil plus a deeper pool
               over the funnel's core — the answers stay readable dead centre
               while the band's edges dissolve into the site's smoke */}
-          <div className="absolute inset-0 bg-machine/30" />
+          {/* arbitrary rgba, not bg-machine/30 — Tailwind v3 cannot put an
+              alpha on a var()-defined token and drops the class silently */}
+          <div className="absolute inset-0 bg-[rgba(28,34,30,0.3)]" />
           <div className="absolute inset-0 [background:radial-gradient(ellipse_60%_70%_at_50%_55%,rgba(16,20,17,0.62),transparent_74%)]" />
         </div>
         <div className="container relative z-10">

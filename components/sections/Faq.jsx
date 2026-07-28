@@ -101,7 +101,9 @@ export default function Faq() {
                     </MonoLabel>
                     <span
                       className={`flex-1 font-display text-h3 leading-display tracking-display transition-colors ${
-                        isOpen ? "text-chalk" : "text-chalk/85 group-hover:text-chalk"
+                        isOpen
+                          ? "text-chalk"
+                          : "text-[rgba(232,234,229,0.85)] group-hover:text-chalk"
                       }`}
                     >
                       {q}
