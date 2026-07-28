@@ -7,6 +7,12 @@ const nextConfig = {
   // never clobber the .next directory a running `next dev` depends on —
   // sharing it crashes the dev server (stale manifests, ENOENT _document).
   distDir: process.env.NEXT_DIST_DIR || ".next",
+
+  // The hero portrait renders at quality 92; Next 16 requires every non-75
+  // quality to be declared.
+  images: {
+    qualities: [75, 92],
+  },
 };
 
 export default nextConfig;

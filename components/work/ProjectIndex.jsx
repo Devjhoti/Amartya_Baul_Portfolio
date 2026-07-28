@@ -10,9 +10,10 @@ export default function ProjectIndex({ projects, filter = null, onClear }) {
   return (
     <div
       id="project-index"
-      // the vortex turns behind this table — every glyph carries its own dark
+      // the vortex turns behind this table — every glyph carries a tight dark
       // halo so legibility never depends on which frame the funnel is in
-      className="scroll-mt-24 space-y-8 [text-shadow:0_1px_3px_rgba(0,0,0,0.85),0_0_10px_rgba(0,0,0,0.7)]"
+      // (tight, not wide: a soft 10px glow smudged the mono labels)
+      className="scroll-mt-24 space-y-8 [text-shadow:0_1px_2px_rgba(0,0,0,0.9),0_0_6px_rgba(0,0,0,0.55)]"
       aria-live="polite"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-4">

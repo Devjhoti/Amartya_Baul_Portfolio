@@ -302,15 +302,34 @@ function makeShape(cfg) {
  * reads its settings from a ref. Speed, glow, colours land on the next frame
  * for free; anything deciding how many things there are needs rebuild() —
  * inside the context that is already open, never by opening another one.
+ *
+ * The engine OWNS its canvas: created here, appended to the container,
+ * removed on dispose. dispose() force-loses the GL context, and a canvas
+ * whose context has been lost never hands out another — so a React-rendered
+ * canvas that survives an effect cycle (StrictMode in dev runs every effect
+ * mount→unmount→mount on the same DOM node) would leave the second engine
+ * with a dead context and no tornado. A fresh canvas per engine cannot break
+ * that way.
  */
-function createVortex(canvas, container, cfgRef) {
+function createVortex(container, cfgRef) {
   /* ---------------------------------------- renderer, kept for good */
-  const renderer = new THREE.WebGLRenderer({
-    canvas,
-    antialias: true,
-    alpha: true,
-    powerPreference: "high-performance",
-  });
+  const canvas = document.createElement("canvas");
+  canvas.style.cssText = "position:absolute;inset:0;display:block;width:100%;height:100%;";
+  container.appendChild(canvas);
+
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: "high-performance",
+    });
+  } catch (err) {
+    // No context to be had — leave nothing behind on the way out.
+    canvas.remove();
+    throw err;
+  }
   renderer.setClearColor(0x000000, 0);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.toneMapping = THREE.ReinhardToneMapping;
@@ -1171,8 +1190,10 @@ function createVortex(canvas, container, cfgRef) {
       container.removeEventListener("pointercancel", onPointerLeave);
       for (const d of disposables) d.dispose();
       renderer.dispose();
-      // Free the GL context at once; browsers cap how many can be open.
+      // Free the GL context at once; browsers cap how many can be open. The
+      // canvas goes with it — a lost context makes it unusable forever.
       renderer.forceContextLoss?.();
+      canvas.remove();
     },
   };
 }
@@ -1201,7 +1222,6 @@ export default function Vortex(props) {
   } = props;
 
   const containerRef = useRef(null);
-  const canvasRef = useRef(null);
 
   const reducedMotion = useReducedMotion();
 
@@ -1285,11 +1305,10 @@ export default function Vortex(props) {
   const apiRef = useRef(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
     const container = containerRef.current;
-    if (!canvas || !container) return;
+    if (!container) return;
     try {
-      apiRef.current = createVortex(canvas, container, configRef);
+      apiRef.current = createVortex(container, configRef);
     } catch (err) {
       // WebGL can be unavailable (blocked, out of contexts, software
       // render). Fail to a transparent canvas over the CSS ground rather
@@ -1326,11 +1345,6 @@ export default function Vortex(props) {
         background,
         ...style,
       }}
-    >
-      <canvas
-        ref={canvasRef}
-        style={{ display: "block", width: "100%", height: "100%" }}
-      />
-    </div>
+    />
   );
 }
