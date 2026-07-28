@@ -74,6 +74,47 @@ export default function Work({ projects }) {
     return () => clearTimeout(dwell);
   }, [activeIndex, allowIframe, failed, projects, indexOf]);
 
+  // Guest sites steal their host's scroll as they boot: a focus() or a
+  // scrollIntoView inside a frame scrolls every ancestor, this document
+  // included, so picking a screen off the programme wall dragged the reader
+  // down the page ~1.8s later (and again when the reflection frame loaded).
+  // While a frame is booting, hold them where they are — released the instant
+  // they scroll, or reach for anything but the wall, themselves.
+  useEffect(() => {
+    if (!allowIframe || !mounted.length) return;
+    const anchor = window.scrollY;
+    let armed = true;
+    const release = () => {
+      armed = false;
+    };
+    // reaching for anything but the wall counts as taking the wheel back —
+    // both events, since a scripted click fires no pointerdown
+    const onReach = (e) => {
+      if (!e.target?.closest?.("[data-wall-left]")) release();
+    };
+    const onScroll = () => {
+      if (!armed || Math.abs(window.scrollY - anchor) < 2) return;
+      if (window.__lenis) window.__lenis.scrollTo(anchor, { immediate: true, force: true });
+      else window.scrollTo(0, anchor);
+    };
+    window.addEventListener("wheel", release, { passive: true });
+    window.addEventListener("touchmove", release, { passive: true });
+    window.addEventListener("keydown", release);
+    window.addEventListener("pointerdown", onReach, true);
+    window.addEventListener("click", onReach, true);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const off = setTimeout(release, 6000);
+    return () => {
+      clearTimeout(off);
+      window.removeEventListener("wheel", release);
+      window.removeEventListener("touchmove", release);
+      window.removeEventListener("keydown", release);
+      window.removeEventListener("pointerdown", onReach, true);
+      window.removeEventListener("click", onReach, true);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [mounted, allowIframe]);
+
   const handleFail = useCallback((slug) => {
     setFailed((f) => (f.includes(slug) ? f : [...f, slug]));
     setMounted((m) => m.filter((s) => s !== slug));
