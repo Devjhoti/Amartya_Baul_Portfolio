@@ -74,44 +74,84 @@ export default function Work({ projects }) {
     return () => clearTimeout(dwell);
   }, [activeIndex, allowIframe, failed, projects, indexOf]);
 
-  // Guest sites steal their host's scroll as they boot: a focus() or a
-  // scrollIntoView inside a frame scrolls every ancestor, this document
-  // included, so picking a screen off the programme wall dragged the reader
-  // down the page ~1.8s later (and again when the reflection frame loaded).
-  // While a frame is booting, hold them where they are — released the instant
-  // they scroll, or reach for anything but the wall, themselves.
+  /**
+   * Guest sites steal their host's scroll as they boot: a scrollIntoView
+   * inside a frame scrolls every ancestor, this document included, so picking
+   * a screen dragged the reader down the page a second or two later — and
+   * again when the floor's mirror loaded.
+   *
+   * Correcting it afterwards is not enough, and that was the shudder: the
+   * theft is animated on the compositor, where `window.scrollY` stays blind
+   * to it for about a tenth of a second, so half a dozen frames are painted
+   * mid-drag before any handler can answer. Measured with a screencast — the
+   * only view of what is actually painted.
+   *
+   * Two measures, and it takes both — measured, each alone still shows the
+   * drag. `overflow: clip` on the document while a frame boots leaves the
+   * guest almost nothing to move (`hidden` would still be programmatically
+   * scrollable), with the scrollbar's width paid back as padding so the page
+   * does not jump; whatever still gets through is snapped back natively,
+   * which also cancels the browser's tween where telling Lenis alone does
+   * not. Together: not one painted frame off the anchor.
+   *
+   * It all lifts the moment the reader reaches for the page themselves — on
+   * capture, so their very first wheel tick is already free by the time Lenis
+   * sees it.
+   */
   useEffect(() => {
     if (!allowIframe || !mounted.length) return;
+    const html = document.documentElement;
     const anchor = window.scrollY;
-    let armed = true;
-    const release = () => {
-      armed = false;
+    const gutter = window.innerWidth - html.clientWidth;
+    const prev = { overflow: html.style.overflow, padding: html.style.paddingRight };
+    let locked = true;
+    html.style.overflow = "clip";
+    if (gutter > 0) html.style.paddingRight = `${gutter}px`;
+
+    const hold = () => {
+      window.scrollTo(0, anchor);
+      window.__lenis?.scrollTo(anchor, { immediate: true, force: true });
     };
-    // reaching for anything but the wall counts as taking the wheel back —
+    const onScroll = () => {
+      if (locked && Math.abs(window.scrollY - anchor) > 1) hold();
+    };
+    let raf = 0;
+    const pin = () => {
+      raf = requestAnimationFrame(pin);
+      onScroll();
+    };
+    raf = requestAnimationFrame(pin);
+
+    const release = () => {
+      if (!locked) return;
+      locked = false;
+      cancelAnimationFrame(raf);
+      html.style.overflow = prev.overflow;
+      html.style.paddingRight = prev.padding;
+    };
+    // reaching for anything but the wall counts as taking the page back —
     // both events, since a scripted click fires no pointerdown
     const onReach = (e) => {
       if (!e.target?.closest?.("[data-wall-left]")) release();
     };
-    const onScroll = () => {
-      if (!armed || Math.abs(window.scrollY - anchor) < 2) return;
-      if (window.__lenis) window.__lenis.scrollTo(anchor, { immediate: true, force: true });
-      else window.scrollTo(0, anchor);
-    };
-    window.addEventListener("wheel", release, { passive: true });
-    window.addEventListener("touchmove", release, { passive: true });
-    window.addEventListener("keydown", release);
+    const opts = { capture: true, passive: true };
+    window.addEventListener("wheel", release, opts);
+    window.addEventListener("touchmove", release, opts);
+    window.addEventListener("keydown", release, true);
     window.addEventListener("pointerdown", onReach, true);
     window.addEventListener("click", onReach, true);
     window.addEventListener("scroll", onScroll, { passive: true });
     const off = setTimeout(release, 6000);
     return () => {
       clearTimeout(off);
-      window.removeEventListener("wheel", release);
-      window.removeEventListener("touchmove", release);
-      window.removeEventListener("keydown", release);
+      release();
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("wheel", release, opts);
+      window.removeEventListener("touchmove", release, opts);
+      window.removeEventListener("keydown", release, true);
       window.removeEventListener("pointerdown", onReach, true);
       window.removeEventListener("click", onReach, true);
-      window.removeEventListener("scroll", onScroll);
     };
   }, [mounted, allowIframe]);
 

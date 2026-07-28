@@ -32,6 +32,16 @@ export default function LiveRig({
   const reflWrapRef = useRef(null);
   const posterRef = useRef(null);
   const [loaded, setLoaded] = useState(false);
+  // `loaded` says the frame has finished; `shown` says it may be painted.
+  // Guest sites reach for focus as they come up, and focusing something inside
+  // a frame scrolls every ancestor to reveal it — this document included, so
+  // the page flinched twice per screen change. Nothing inside a
+  // visibility:hidden frame is focusable, so holding it dark across the boot
+  // (behind the poster, which is opaque anyway) removes the flinch at source
+  // rather than yanking the scroll back afterwards. §6.2
+  const [shown, setShown] = useState(false);
+  const [reflLoaded, setReflLoaded] = useState(false);
+  const [reflShown, setReflShown] = useState(false);
 
   const status = failed
     ? "OFFLINE"
@@ -70,22 +80,44 @@ export default function LiveRig({
     return () => clearTimeout(t);
   }, [mountIframe, loaded, project.slug, onFail]);
 
-  // Reset the machine when the frame is evicted; fade the poster on LIVE.
+  // Reset the machine when the frame is evicted.
   useEffect(() => {
     if (!mountIframe && loaded) setLoaded(false);
-  }, [mountIframe, loaded]);
+    if (!mountIframe && shown) setShown(false);
+  }, [mountIframe, loaded, shown]);
+
+  // Let the guest settle past its own load handlers before it is painted —
+  // and only then start the poster's dissolve, so the two stay in step.
+  useEffect(() => {
+    if (!loaded || failed) return;
+    const t = setTimeout(() => setShown(true), 260);
+    return () => clearTimeout(t);
+  }, [loaded, failed]);
 
   useEffect(() => {
     const poster = posterRef.current;
     if (!poster) return;
-    if (status === "LIVE") {
+    if (shown) {
       gsap.to(poster, { autoAlpha: 0, duration: 0.6, ease: "power2.out" });
     } else {
       gsap.set(poster, { autoAlpha: 1 });
     }
-  }, [status]);
+  }, [shown]);
 
-  const liveReflection = reflectLive && mountIframe && loaded && !failed;
+  const liveReflection = reflectLive && mountIframe && shown && !failed;
+
+  // the floor's mirror is a second document of the same site, so it reaches
+  // for focus a second time — held dark across its own boot too
+  useEffect(() => {
+    if (!liveReflection) {
+      setReflLoaded(false);
+      setReflShown(false);
+      return;
+    }
+    if (!reflLoaded) return;
+    const t = setTimeout(() => setReflShown(true), 260);
+    return () => clearTimeout(t);
+  }, [liveReflection, reflLoaded]);
 
   return (
     <div>
@@ -117,6 +149,7 @@ export default function LiveRig({
                   sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
                   referrerPolicy="no-referrer"
                   className="pointer-events-none h-[920px] w-[1460px] border-0 bg-machine-2"
+                  style={{ visibility: shown ? "visible" : "hidden" }}
                   onLoad={() => setLoaded(true)}
                 />
               </div>
@@ -144,10 +177,20 @@ export default function LiveRig({
         className="pointer-events-none relative mt-3 h-24 overflow-hidden opacity-40 lg:h-32"
         style={{ WebkitMaskImage: REFLECTION_MASK, maskImage: REFLECTION_MASK }}
       >
+        {/* the poster's mirror is the floor's base coat; the live one paints
+            over it once it is up, so the floor never blanks mid-swap */}
+        <Image
+          src={project.poster}
+          alt=""
+          fill
+          sizes="(min-width: 1024px) 60vw, 100vw"
+          className="-scale-y-100 object-cover object-bottom blur-[5px]"
+        />
         {liveReflection ? (
           <div
             ref={reflWrapRef}
             className="absolute left-0 top-0 h-[900px] w-[1440px] origin-top-left blur-[5px]"
+            style={{ visibility: reflShown ? "visible" : "hidden" }}
           >
             <iframe
               src={project.url}
@@ -157,17 +200,10 @@ export default function LiveRig({
               sandbox="allow-scripts allow-same-origin"
               referrerPolicy="no-referrer"
               className="pointer-events-none h-[920px] w-[1460px] -scale-y-100 border-0"
+              onLoad={() => setReflLoaded(true)}
             />
           </div>
-        ) : (
-          <Image
-            src={project.poster}
-            alt=""
-            fill
-            sizes="(min-width: 1024px) 60vw, 100vw"
-            className="-scale-y-100 object-cover object-bottom blur-[5px]"
-          />
-        )}
+        ) : null}
       </div>
     </div>
   );
