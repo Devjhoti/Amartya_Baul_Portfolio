@@ -1,25 +1,25 @@
 "use client";
 
 /**
- * Client shell for an Industries cell: clicking filters the project index to
- * that sector and rides down to it. The chip inside arrives server-rendered
- * as children, so the procedural pattern data stays out of the client bundle.
- * PRD §5.8
+ * Client shell for an Industries cell: clicking rides up to the auditorium —
+ * the one place the work now shows (the filterable index it used to target
+ * was replaced by the FAQ band on client direction). The chip inside arrives
+ * server-rendered as children, so the procedural pattern data stays out of
+ * the client bundle. PRD §5.8 (revised)
  */
 export default function IndustryCell({ sector, className = "", children }) {
   const onClick = () => {
-    if (window.__filterIndex) {
-      window.__filterIndex(sector);
-    } else {
-      document.getElementById("project-index")?.scrollIntoView({ behavior: "smooth" });
-    }
+    const el = document.getElementById("work");
+    if (!el) return;
+    if (window.__lenis) window.__lenis.scrollTo(el);
+    else el.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={`Show ${sector} in the project index`}
+      aria-label={`See the ${sector} build in the auditorium`}
       className={className}
     >
       {children}

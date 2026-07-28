@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { gsap, ScrollTrigger, useGSAP, MM } from "@/lib/gsap";
@@ -13,7 +13,7 @@ import ScrambleText from "@/components/ui/ScrambleText";
 import TechIcon from "@/components/ui/TechIcon";
 import LiveRig from "@/components/work/LiveRig";
 import LabelPlate from "@/components/work/LabelPlate";
-import ProjectIndex from "@/components/work/ProjectIndex";
+import Faq from "@/components/sections/Faq";
 
 // Three.js stays out of the main bundle — same treatment as the hero rig. The
 // index band's black CSS ground is the no-JS / no-WebGL fallback. §9
@@ -40,7 +40,6 @@ export default function Work({ projects }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [mounted, setMounted] = useState([]); // LRU of slugs, most recent last
   const [failed, setFailed] = useState([]);
-  const [sectorFilter, setSectorFilter] = useState(null);
   const [statusMap, setStatusMap] = useState({});
   const isDesktop = useIsDesktop();
   const reduceMotion = usePrefersReducedMotion();
@@ -83,28 +82,6 @@ export default function Work({ projects }) {
   const handleStatus = useCallback((slug, status) => {
     setStatusMap((m) => (m[slug] === status ? m : { ...m, [slug]: status }));
   }, []);
-
-  // Industries cells filter the index table down here. PRD §5.8
-  useEffect(() => {
-    window.__filterIndex = (sector) => {
-      setSectorFilter((cur) => (cur === sector ? null : sector));
-      const el = document.getElementById("project-index");
-      if (!el) return;
-      if (window.__lenis) window.__lenis.scrollTo(el);
-      else el.scrollIntoView({ behavior: "smooth" });
-    };
-    return () => {
-      delete window.__filterIndex;
-    };
-  }, []);
-
-  const numbered = useMemo(
-    () => projects.map((p, i) => ({ ...p, no: i + 1 })),
-    [projects]
-  );
-  const indexProjects = sectorFilter
-    ? numbered.filter((p) => p.sector === sectorFilter)
-    : numbered;
 
   // The stage. Everything here exists only in the isDesktop && !reduceMotion
   // branch and reverts wholesale on breakpoint change or unmount. No pin —
@@ -197,6 +174,13 @@ export default function Work({ projects }) {
             onToggle: (s) => bobs.forEach((t) => (s.isActive ? t.play() : t.pause())),
           });
         }
+
+        // The rigs just collapsed from a stacked column into one absolute
+        // viewport — everything below the stage moved up by ~10 screens, and
+        // any trigger that measured itself before this (the FAQ, contact)
+        // would wait forever at its stale position. The pinned version got
+        // this refresh for free from the pin; without one it is explicit.
+        ScrollTrigger.refresh();
 
         return () => {
           delete window.__rigJump;
@@ -439,12 +423,13 @@ export default function Work({ projects }) {
           </div>
       </div>
 
-      {/* the index runs on the auditorium's black floor now, with the tornado
-          turning behind it — the scrim keeps every row of the table sharp */}
-      <div className="relative overflow-hidden border-t border-rule-inv bg-black py-section-half text-chalk">
+      {/* the FAQ band — the tornado turns behind it on a TRANSPARENT ground,
+          its strands tinted to the smoke's own greens so the two read as one
+          weather system, not a black poster pasted into the page */}
+      <div className="relative overflow-hidden border-t border-rule-inv py-section-half text-chalk">
         <div aria-hidden="true" className="absolute inset-0">
           <Vortex
-            background="#000000"
+            background="transparent"
             topRadius={380}
             waistRadius={53}
             waistPosition={50}
@@ -454,22 +439,19 @@ export default function Work({ projects }) {
             speed={10}
             direction="right"
             dots
-            dotOptions={{ count: isDesktop ? 8000 : 2200 }}
+            dotOptions={{ count: isDesktop ? 8000 : 2200, color: "#d7e0da" }}
             comets
             cometOptions={{ color: "#E5C11F" }}
-            lineOptions={{ count: isDesktop ? 240 : 120, glow: 7 }}
+            lineOptions={{ count: isDesktop ? 240 : 120, glow: 7, color: "#96a098" }}
           />
-          {/* two scrims: a light veil everywhere, and a heavier pool over the
-              funnel's bright core — the table stays readable dead centre */}
-          <div className="absolute inset-0 bg-black/30" />
-          <div className="absolute inset-0 [background:radial-gradient(ellipse_55%_65%_at_50%_60%,rgba(0,0,0,0.6),transparent_72%)]" />
+          {/* machine-toned scrims, not black: a faint veil plus a deeper pool
+              over the funnel's core — the answers stay readable dead centre
+              while the band's edges dissolve into the site's smoke */}
+          <div className="absolute inset-0 bg-machine/30" />
+          <div className="absolute inset-0 [background:radial-gradient(ellipse_60%_70%_at_50%_55%,rgba(16,20,17,0.62),transparent_74%)]" />
         </div>
         <div className="container relative z-10">
-          <ProjectIndex
-            projects={indexProjects}
-            filter={sectorFilter}
-            onClear={() => setSectorFilter(null)}
-          />
+          <Faq />
         </div>
       </div>
     </section>
