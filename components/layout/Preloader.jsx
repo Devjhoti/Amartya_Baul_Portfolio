@@ -50,10 +50,12 @@ const fallTime = (h) => Math.sqrt((2 * Math.max(h, 0.5)) / G);
 const NAME_LINES = ["AMARTYA", "BAUL"];
 const ROLE = "Full-Stack Developer";
 
-// Second load onward in a session: the name still stands up, then the panel
-// leaves — the pre-bike intro, kept as the short cut. Set this to 0 to give
-// every load the full sequence instead.
-const SHORT_MS = 1150;
+// Client direction: every load gets the full sequence. Set this above 0 and a
+// repeat load in the same session runs the short cut instead — the pre-bike
+// intro, name only, for that many milliseconds. Measured either way: the
+// panel's length does not move LCP, FCP or blocking time, since the page
+// underneath is revealed on mount and Chrome scores LCP through the overlay.
+const SHORT_MS = 0;
 
 export default function Preloader() {
   // 0 = playing | 1 = wiping | 2 = gone
@@ -71,8 +73,6 @@ export default function Preloader() {
       setPhase(2);
       return;
     }
-    // The full show is a first-impression piece; a reload in the same session
-    // gets the short cut rather than the whole ride again.
     const repeat = SHORT_MS > 0 && document.documentElement.hasAttribute("data-intro-seen");
     try {
       sessionStorage.setItem(SEEN_KEY, "1");
