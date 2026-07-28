@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { gsap, ScrollTrigger, useGSAP, MM } from "@/lib/gsap";
 import MonoLabel from "@/components/ui/MonoLabel";
 import ScrambleText from "@/components/ui/ScrambleText";
@@ -21,10 +22,45 @@ import TechIcon from "@/components/ui/TechIcon";
  * the spec table in Capabilities.jsx is the fallback and the crawlable truth.
  */
 
-const RADIUS = 190; // px — chip orbit radius inside the ~540px stage
-const Y_BAND = 0.62; // squash the poles so small counts never read as a line
+const RADIUS = 235; // px — chip orbit radius inside the ~640px stage
+const Y_BAND = 0.7; // squash the poles so small counts never read as a line
 const BASE_SPIN = 0.12; // rad/s idle rotation
 const AUTO_SECONDS = 7;
+
+// Real brand marks, committed to /public/tech (devicon MIT + simple-icons
+// CC0, brand colour stamped in). Items without a published mark fall back
+// to the monochrome TechIcon glyph.
+const ICONS = {
+  React: "react.svg",
+  "Next.js": "nextjs.svg",
+  TypeScript: "typescript.svg",
+  JavaScript: "javascript.svg",
+  HTML: "html5.svg",
+  CSS: "css3.svg",
+  "Tailwind CSS": "tailwindcss.svg",
+  GSAP: "gsap.svg",
+  "Framer Motion": "framermotion.svg",
+  "Three.js": "threejs.svg",
+  Vite: "vite.svg",
+  "Node.js": "nodejs.svg",
+  Express: "express.svg",
+  JWT: "jwt.svg",
+  "Socket.IO": "socketio.svg",
+  NPM: "npm.svg",
+  Postman: "postman.svg",
+  MongoDB: "mongodb.svg",
+  Mongoose: "mongoose.svg",
+  PostgreSQL: "postgresql.svg",
+  MySQL: "mysql.svg",
+  Prisma: "prisma.svg",
+  Firebase: "firebase.svg",
+  Vercel: "vercel.svg",
+  Netlify: "netlify.svg",
+  Git: "git.svg",
+  GitHub: "github.svg",
+  Cloudinary: "cloudinary.svg",
+  Figma: "figma.svg",
+};
 
 /** Fibonacci-ish distribution, banded toward the equator. */
 function spherePoints(n) {
@@ -347,7 +383,7 @@ export default function CapabilityOrbit({ groups }) {
           <div
             ref={stageRef}
             aria-hidden="true"
-            className="relative mx-auto aspect-square w-full max-w-[540px] cursor-grab select-none [perspective:1100px] [touch-action:pan-y] active:cursor-grabbing"
+            className="relative mx-auto aspect-square w-full max-w-[640px] cursor-grab select-none [perspective:1200px] [touch-action:pan-y] active:cursor-grabbing"
           >
             <div
               ref={sphereRef}
@@ -383,17 +419,29 @@ export default function CapabilityOrbit({ groups }) {
                   }}
                 >
                   <div ref={(el) => (bbEls.current[i] = el)} className="[will-change:transform]">
+                    {/* light specimen card — the one ground every brand
+                        colour (and every black wordmark) reads on */}
                     <div
                       ref={(el) => (visEls.current[i] = el)}
                       onPointerEnter={() => setHovered(c)}
                       onPointerLeave={() => setHovered(null)}
-                      className="flex h-16 w-16 items-center justify-center border border-white/15 bg-[rgba(38,46,41,0.82)] text-chalk transition-colors hover:border-signal hover:text-signal"
+                      className="flex h-[4.6rem] w-[4.6rem] items-center justify-center border border-white/25 bg-[rgba(223,225,219,0.95)] transition-colors hover:border-signal"
                       style={{
                         boxShadow:
-                          "0 10px 24px -12px rgba(0,0,0,0.6), inset 1px 1px 0 rgba(255,255,255,0.1)",
+                          "0 12px 26px -12px rgba(0,0,0,0.65), inset 1px 1px 0 rgba(255,255,255,0.5)",
                       }}
                     >
-                      <TechIcon name={c.name} className="h-7 w-7" />
+                      {ICONS[c.name] ? (
+                        <Image
+                          src={`/tech/${ICONS[c.name]}`}
+                          alt=""
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 object-contain"
+                        />
+                      ) : (
+                        <TechIcon name={c.name} className="h-9 w-9 text-ink" />
+                      )}
                     </div>
                   </div>
                 </div>

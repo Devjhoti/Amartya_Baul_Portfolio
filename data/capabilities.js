@@ -1,26 +1,59 @@
 /**
  * /data/capabilities.js
  *
- * Grouped capability rows for the spec table in §5.7 — four rows, not a badge
- * soup. Read through /lib/content.js via getCapabilities(). PRD §2.5 · §8.3
+ * Grouped capability rows — four systems, expanded on client direction so
+ * each orbit reads as a full sphere. Names that also appear in project
+ * stacks ("HTML", "CSS", not "HTML5") keep their stack spelling so the
+ * honest usage counts keep matching. Read through /lib/content.js via
+ * getCapabilities(). PRD §2.5 · §8.3
  */
 
 export const capabilities = [
   {
     group: "Frontend",
-    items: ["React", "Next.js", "JavaScript", "TypeScript", "Tailwind CSS", "GSAP"],
+    items: [
+      "React",
+      "Next.js",
+      "TypeScript",
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "Tailwind CSS",
+      "GSAP",
+      "Framer Motion",
+      "Three.js",
+      "Vite",
+      "Lenis",
+    ],
   },
   {
     group: "Backend",
-    items: ["Node.js", "Express", "REST APIs", "Authentication"],
+    items: [
+      "Node.js",
+      "Express",
+      "REST APIs",
+      "Authentication",
+      "JWT",
+      "Socket.IO",
+      "NPM",
+      "Postman",
+    ],
   },
   {
     group: "Data",
-    items: ["MongoDB", "PostgreSQL", "Prisma"],
+    items: ["MongoDB", "Mongoose", "PostgreSQL", "MySQL", "Prisma", "Firebase"],
   },
   {
     group: "Delivery",
-    items: ["Vercel", "Git/GitHub", "Cloudinary", "Performance & SEO"],
+    items: [
+      "Vercel",
+      "Netlify",
+      "Git",
+      "GitHub",
+      "Cloudinary",
+      "Figma",
+      "Performance & SEO",
+    ],
   },
 ];
 
