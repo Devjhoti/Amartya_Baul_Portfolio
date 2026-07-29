@@ -94,6 +94,7 @@ export default function CapabilityOrbit({ groups }) {
   const enabledRef = useRef(false);
   const inViewRef = useRef(false);
   const pointerOverRef = useRef(false);
+  const assembledRef = useRef(false);
 
   // One flat chip list, every system pre-positioned — all mounted, only the
   // active set visible, so a morph never re-creates DOM mid-tween.
@@ -267,23 +268,36 @@ export default function CapabilityOrbit({ groups }) {
             );
         };
 
-        /* ---------------- assemble on first sight; sleep offscreen (§9) */
-        const first = chips
-          .map((c, i) => (c.sys === 0 ? visEls.current[i] : null))
-          .filter(Boolean);
-        gsap.set(first, { scale: 0.2, autoAlpha: 0 });
+        /* ---------------- assemble on first sight; sleep offscreen (§9)
+         * The clock must not run before the sphere is built. It used to: the
+         * in-view trigger fires a whole viewport earlier than the assemble
+         * one, so on a slow scroll the auto-advance had already moved on, and
+         * then the assemble lit system 01 over the top of whichever was
+         * current — Frontend's marks orbiting the Data list. It assembles
+         * whatever is actually current now, and arms the clock only then.
+         */
+        gsap.set(
+          chips.map((c, i) => visEls.current[i]),
+          { scale: 0.2, autoAlpha: 0 }
+        );
         ScrollTrigger.create({
           trigger: rootRef.current,
           start: "top 70%",
           once: true,
-          onEnter: () =>
-            gsap.to(first, {
+          onEnter: () => {
+            assembledRef.current = true;
+            const now = chips
+              .map((c, i) => (c.sys === activeRef.current ? visEls.current[i] : null))
+              .filter(Boolean);
+            gsap.to(now, {
               scale: 1,
               autoAlpha: 1,
               duration: 0.6,
               ease: "back.out(1.6)",
               stagger: 0.06,
-            }),
+            });
+            if (inViewRef.current && !pointerOverRef.current) autoRef.current?.play();
+          },
         });
         ScrollTrigger.create({
           trigger: rootRef.current,
@@ -293,7 +307,7 @@ export default function CapabilityOrbit({ groups }) {
             inViewRef.current = s.isActive;
             if (s.isActive) {
               start();
-              if (!pointerOverRef.current) autoRef.current?.play();
+              if (assembledRef.current && !pointerOverRef.current) autoRef.current?.play();
             } else {
               stop();
               autoRef.current?.pause();
@@ -331,7 +345,9 @@ export default function CapabilityOrbit({ groups }) {
         scaleX: 1,
         duration: AUTO_SECONDS,
         ease: "none",
-        paused: !inViewRef.current || pointerOverRef.current,
+        // never before the sphere has assembled, or the clock runs ahead of
+        // what the reader has actually seen
+        paused: !assembledRef.current || !inViewRef.current || pointerOverRef.current,
         onComplete: () => switchToRef.current?.((activeRef.current + 1) % groups.length),
       }
     );
@@ -423,9 +439,10 @@ export default function CapabilityOrbit({ groups }) {
                         colour (and every black wordmark) reads on */}
                     <div
                       ref={(el) => (visEls.current[i] = el)}
+                      data-chip={c.name}
                       onPointerEnter={() => setHovered(c)}
                       onPointerLeave={() => setHovered(null)}
-                      className="flex h-[4.6rem] w-[4.6rem] items-center justify-center border border-white/25 bg-[rgba(223,225,219,0.95)] transition-colors hover:border-signal"
+                      className="flex h-[4.6rem] w-[4.6rem] items-center justify-center rounded-full border border-white/25 bg-[rgba(223,225,219,0.95)] transition-colors hover:border-signal"
                       style={{
                         boxShadow:
                           "0 12px 26px -12px rgba(0,0,0,0.65), inset 1px 1px 0 rgba(255,255,255,0.5)",
