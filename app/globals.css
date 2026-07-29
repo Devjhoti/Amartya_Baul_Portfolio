@@ -58,6 +58,13 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* A standing guard against sideways scroll: entrance transforms park
+       elements outside the page before they play, and on a narrow screen that
+       widened the document — every position:fixed element then sized to the
+       wider box, so the nav dock hung off the right edge. `clip` rather than
+       `hidden` on purpose: paired with a visible y it does NOT make the body a
+       scroll container, so sticky positioning inside still works. */
+    overflow-x: clip;
   }
 
   /* Display face — headings only. Archivo, width 110, tracking -0.03em,

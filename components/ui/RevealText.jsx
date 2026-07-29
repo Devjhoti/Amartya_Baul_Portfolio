@@ -38,8 +38,15 @@ export default function RevealText({
         const el = ref.current;
 
         if (variant !== "chars") {
-          // "fade" | "slide-left" | "slide-right" — block-level entrances
-          const fromX = variant === "slide-left" ? -80 : variant === "slide-right" ? 80 : 0;
+          // "fade" | "slide-left" | "slide-right" — block-level entrances.
+          // The sideways travel is desktop-only. A phone column is the full
+          // width, so parking it off to one side widened the document itself
+          // until the reveal played — the layout viewport grew with it and
+          // every position:fixed element, the nav dock included, sized to the
+          // wider box. The fade alone carries the entrance at this width.
+          const reach = isDesktop ? 80 : 0;
+          const fromX =
+            variant === "slide-left" ? -reach : variant === "slide-right" ? reach : 0;
           gsap.set(el, { autoAlpha: 0, x: fromX, visibility: "visible", willChange: "transform, opacity" });
           const tween = gsap.to(el, {
             autoAlpha: 1,

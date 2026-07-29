@@ -89,9 +89,13 @@ export default async function Capabilities() {
                         )}
                       </span>
                       <span className="min-w-0">
-                        {/* wraps rather than truncates — "TAILWIND C…" tells
-                            the reader nothing they did not already know */}
-                        <span className="block font-mono text-[0.82rem] uppercase leading-tight tracking-[0.06em] text-chalk">
+                        {/* Wraps rather than truncates — "TAILWIND C…" tells
+                            the reader nothing they did not already know. And
+                            break-words, because a single unbreakable word
+                            wider than its cell does not just spill: it widens
+                            the grid, the page and the layout viewport with it.
+                            AUTHENTICATION was doing exactly that at 320px. */}
+                        <span className="block break-words font-mono text-[0.82rem] uppercase leading-tight tracking-[0.06em] text-chalk">
                           {item.name}
                         </span>
                         {item.count > 0 ? (

@@ -9,16 +9,28 @@ import { gsap, ScrollTrigger, useGSAP, MM } from "@/lib/gsap";
 
 /**
  * Thin top bar, transparent over the hero. Past ~85% of a viewport it
- * condenses into a floating pill — top-right on desktop, bottom-centre on
- * mobile — and the active section is marked with a signal dot, tracked by
- * ScrollTrigger. Reduced motion gets the same pill with no animation: nav
- * access after scrolling is function, not decoration. PRD §5.1
+ * condenses — and the two screens get different furniture, because one pill
+ * could not serve both: at 390px the desktop pill held a monogram, three
+ * links and a button, and the button's label broke across three lines.
+ *
+ * Desktop keeps that pill, top-right. A phone gets a dock instead: a glass
+ * bar across the foot of the screen, monogram to return, two destinations,
+ * and Contact filled in chalk so the call to action is the widest thing on
+ * it. Contact appears once, not twice — the old pill listed it as a link AND
+ * as "Get in touch", both pointing at the same anchor.
+ *
+ * The active section is marked with a signal dot, tracked by ScrollTrigger.
+ * Reduced motion gets the same furniture with no animation: nav access after
+ * scrolling is function, not decoration. PRD §5.1
  */
 const LINKS = [
   ["Work", "/#work", "work"],
   ["About", "/#about", "about"],
   ["Contact", "/#contact", "contact"],
 ];
+
+// the dock spells Contact as its filled action, so it is not also a link
+const DOCK_LINKS = LINKS.filter(([, , id]) => id !== "contact");
 
 export default function Nav() {
   const rootRef = useRef(null);
@@ -31,18 +43,20 @@ export default function Nav() {
 
       mm.add(MM, (ctx) => {
         const { reduceMotion } = ctx.conditions;
-        const pill = pillRef.current;
-        gsap.set(pill, { autoAlpha: 0, y: reduceMotion ? 0 : 12 });
+        // one show/hide drives both the desktop pill and the phone dock; only
+        // one of the two is ever rendered at a given width
+        const condensed = gsap.utils.toArray("[data-condensed]", rootRef.current);
+        gsap.set(condensed, { autoAlpha: 0, y: reduceMotion ? 0 : 12 });
 
         let shown = false;
         const toggle = (past) => {
           shown = past;
           if (reduceMotion) {
-            gsap.set(pill, { autoAlpha: past ? 1 : 0 });
+            gsap.set(condensed, { autoAlpha: past ? 1 : 0 });
           } else if (past) {
-            gsap.to(pill, { autoAlpha: 1, y: 0, duration: 0.35, ease: "power3.out" });
+            gsap.to(condensed, { autoAlpha: 1, y: 0, duration: 0.35, ease: "power3.out" });
           } else {
-            gsap.to(pill, { autoAlpha: 0, y: 12, duration: 0.3, ease: "power2.in" });
+            gsap.to(condensed, { autoAlpha: 0, y: 12, duration: 0.3, ease: "power2.in" });
           }
         };
 
@@ -113,10 +127,11 @@ export default function Nav() {
         </div>
       </header>
 
-      {/* condensed floating pill — §3.3 permits the shadow here */}
-      <div className="pointer-events-none fixed bottom-5 left-1/2 z-[110] -translate-x-1/2 lg:bottom-auto lg:left-auto lg:right-[var(--page-margin)] lg:top-5 lg:translate-x-0">
+      {/* condensed pill, desktop — §3.3 permits the shadow here */}
+      <div className="pointer-events-none fixed right-[var(--page-margin)] top-5 z-[110] hidden lg:block">
         <nav
           ref={pillRef}
+          data-condensed=""
           aria-label="Condensed"
           className="pointer-events-auto flex items-center gap-4 rounded-full border border-rule-inv bg-machine py-2 pl-4 pr-2 text-chalk opacity-0 shadow-lg shadow-black/25"
         >
@@ -144,6 +159,50 @@ export default function Nav() {
             className="rounded-full bg-chalk px-4 py-1.5 font-body text-small font-medium text-ink transition-colors hover:bg-concrete-2"
           >
             Get in touch
+          </Link>
+        </nav>
+      </div>
+
+      {/* the phone's dock: glass across the foot, the action filled and widest,
+          clear of the home indicator */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[110] px-[var(--page-margin)] pb-[max(0.9rem,env(safe-area-inset-bottom))] lg:hidden">
+        <nav
+          data-condensed=""
+          aria-label="Condensed"
+          className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-white/15 bg-[rgba(28,34,30,0.82)] p-1.5 text-chalk opacity-0 backdrop-blur-xl"
+          style={{
+            boxShadow:
+              "0 18px 40px -18px rgba(0,0,0,0.85), inset 1px 1px 0 rgba(255,255,255,0.1)",
+          }}
+        >
+          {/* no monogram here: at 320px it was the difference between the
+              dock sitting inside its margins and hanging over them, and the
+              top bar already carries the mark */}
+          {DOCK_LINKS.map(([label, href, id]) => (
+            <a
+              key={href}
+              href={href}
+              aria-current={active === id ? "true" : undefined}
+              className={`flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full font-mono text-mono uppercase tracking-mono transition-colors ${
+                active === id ? "bg-white/[0.06] text-chalk" : "text-chalk-mute"
+              }`}
+            >
+              <span
+                aria-hidden="true"
+                className={`h-1 w-1 rounded-full ${
+                  active === id ? "bg-signal" : "bg-transparent"
+                }`}
+              />
+              {label}
+            </a>
+          ))}
+
+          <Link
+            href="/#contact"
+            aria-current={active === "contact" ? "true" : undefined}
+            className="flex h-11 shrink-0 items-center rounded-full bg-chalk px-5 font-mono text-mono uppercase tracking-mono text-ink transition-colors active:bg-concrete-2"
+          >
+            Contact
           </Link>
         </nav>
       </div>

@@ -81,9 +81,13 @@ export default async function Footer() {
           {/* centred, sized to always fit the container, and rolling — each
               character a prism turning over in a travelling wave */}
           <div className="text-center">
+            {/* the clamp floor decides the narrow end: at 2.75rem the nowrap
+                wordmark was wider than a 360px screen, and since it is the
+                widest thing on the page it dragged the layout viewport with
+                it — which every fixed element then sized to */}
             <CubeRollName
               text={profile.name}
-              className="whitespace-nowrap font-display text-[clamp(2.75rem,9.6vw,9.6rem)] uppercase leading-none tracking-display"
+              className="whitespace-nowrap font-display text-[clamp(2.2rem,9.6vw,9.6rem)] uppercase leading-none tracking-display"
             />
           </div>
           <div className="mx-2 mt-2 h-px bg-signal" />
