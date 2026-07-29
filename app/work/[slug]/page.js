@@ -6,15 +6,24 @@ import Footer from "@/components/layout/Footer";
 import MonoLabel from "@/components/ui/MonoLabel";
 import Button from "@/components/ui/Button";
 import RevealText from "@/components/ui/RevealText";
+import TechIcon from "@/components/ui/TechIcon";
 import CaseEmbed from "@/components/work/CaseEmbed";
+import PageScrub from "@/components/work/PageScrub";
 import { getProjects, getProject, getAgency } from "@/lib/content";
+// frame counts written by scripts/generate-shots.mjs alongside the strips
+import shotFrames from "@/data/shots.json";
 
 /**
- * Case study — PRD §5.5. Order: hero (client, sector, year) → meta table →
- * full-width live embed reusing LiveRig → Challenge → Approach → Outcome →
- * Open live site → next project. Challenge/approach/outcome render only once
- * Phase 6 writes them from the real sites — nothing is invented to fill the
- * gap. Statically generated for all 11 slugs.
+ * Case study — PRD §5.5, redesigned onto the site's own ground. The page used
+ * to sit on light concrete while every homepage section moved to the fixed
+ * smoke; it reads as one site now.
+ *
+ * The order is an argument: the name, then the thing running live, then the
+ * spec sheet holding station beside the written story, then their whole page
+ * scrubbed past the glass, then the way out. Challenge/approach/outcome render
+ * only where Phase 6 wrote them from the real sites — nothing is invented to
+ * fill the gap, and the block numbering closes over whatever is present.
+ * Statically generated for all 11 slugs.
  */
 
 export async function generateStaticParams() {
@@ -42,13 +51,15 @@ export async function generateMetadata({ params }) {
   };
 }
 
-function MetaRow({ label, children }) {
+function SpecRow({ label, children }) {
   return (
-    <div className="grid grid-cols-12 gap-x-6 border-b border-rule py-4">
-      <MonoLabel as="dt" className="col-span-4 text-ink-mute sm:col-span-3">
+    <div className="border-t border-rule-inv py-3">
+      <MonoLabel as="dt" className="text-chalk-mute">
         {label}
       </MonoLabel>
-      <dd className="col-span-8 font-body text-body sm:col-span-9">{children}</dd>
+      <dd className="mt-1.5 font-mono text-[0.92rem] uppercase tracking-[0.08em] text-chalk">
+        {children}
+      </dd>
     </div>
   );
 }
@@ -72,104 +83,177 @@ export default async function CaseStudy({ params }) {
     { key: "outcome", label: "OUTCOME", body: project.outcome },
   ].filter((b) => b.body.length > 0);
 
+  // 01 is the live screen; the written blocks follow; the scrub closes it out
+  const pad = (n) => String(n).padStart(2, "0");
+  const scrubIndex = pad(copyBlocks.length + 2);
+
   return (
     <>
       <Nav />
-      <main id="content">
-        {/* hero — client, sector, year. PRD §5.5 */}
-        <header className="bg-machine pb-16 pt-32 text-chalk">
+      <main id="content" className="text-chalk">
+        {/* ── the name */}
+        <header className="pb-14 pt-32">
           <div className="container space-y-10">
             <div className="flex items-baseline justify-between gap-6 border-t border-rule-inv pt-4">
               <MonoLabel>
                 <span className="text-signal">[ {no} ]</span>
                 <span className="ml-3">CASE STUDY</span>
               </MonoLabel>
-              <MonoLabel className="text-chalk-mute">BUILD {no} / {String(projects.length).padStart(2, "0")}</MonoLabel>
+              <MonoLabel className="text-chalk-mute">
+                BUILD {no} / {String(projects.length).padStart(2, "0")}
+              </MonoLabel>
             </div>
             <div className="grid grid-cols-1 items-end gap-y-6 lg:grid-cols-12 lg:gap-x-6">
-              <RevealText
-                as="h1"
-                text={project.client}
-                className="text-display lg:col-span-8"
-              />
+              <RevealText as="h1" text={project.client} className="text-display lg:col-span-8" />
               <MonoLabel className="text-chalk-mute lg:col-span-4 lg:justify-self-end">
                 {project.sector} · {project.year}
               </MonoLabel>
             </div>
+            {project.tagline ? (
+              <RevealText as="p" variant="fade" className="max-w-[62ch] text-body text-chalk-mute">
+                {project.tagline}
+              </RevealText>
+            ) : null}
           </div>
         </header>
 
-        <div className="bg-concrete py-section-half">
-          <div className="container space-y-20">
-            {/* meta table — row order per PRD §5.5 */}
-            <dl className="border-t border-rule lg:max-w-[70%]">
-              <MetaRow label="SECTOR">{project.sector}</MetaRow>
-              <MetaRow label="ROLE">{project.role}</MetaRow>
-              <MetaRow label="AGENCY">
-                <span className="flex items-center gap-3">
-                  {agency.name}
-                  <span className="relative inline-block h-5 w-16">
-                    <Image
-                      src={agency.logo}
-                      alt=""
-                      fill
-                      sizes="64px"
-                      className="object-contain object-left opacity-70 brightness-0"
-                    />
-                  </span>
-                </span>
-              </MetaRow>
-              <MetaRow label="STACK">{project.stack.join(" · ")}</MetaRow>
-              <MetaRow label="YEAR">{project.year}</MetaRow>
-              {project.duration ? <MetaRow label="DURATION">{project.duration}</MetaRow> : null}
-              <MetaRow label="TYPE">
-                {project.type === "internal" ? "Internal — PKG IT's own site" : "Client work, delivered at PKG IT"}
-              </MetaRow>
-            </dl>
+        <div className="container space-y-24 pb-section-half">
+          {/* ── 01 · running now */}
+          <section>
+            <div className="flex items-baseline justify-between gap-6 border-t border-rule-inv pt-4">
+              <MonoLabel>
+                <span className="text-signal">[ 01 ]</span>
+                <span className="ml-3">RUNNING NOW</span>
+              </MonoLabel>
+              <MonoLabel className="text-chalk-mute">LIVE SITE · NOT A SCREENSHOT</MonoLabel>
+            </div>
+            <div className="mt-8">
+              <CaseEmbed project={project} />
+            </div>
+          </section>
 
-            {/* full-width live embed, same rig, same rules. PRD §5.5 · §6 */}
-            <CaseEmbed project={project} />
+          {/* ── the spec sheet holds station beside the written story */}
+          <div className="grid grid-cols-1 gap-y-14 lg:grid-cols-12 lg:gap-x-6">
+            <aside className="lg:col-span-4">
+              <div
+                className="border border-white/15 bg-white/[0.04] p-6 lg:sticky lg:top-28"
+                style={{
+                  boxShadow:
+                    "0 24px 48px -24px rgba(0,0,0,0.6), inset 1px 1px 0 rgba(255,255,255,0.1)",
+                }}
+              >
+                <MonoLabel className="text-chalk-mute">SPEC SHEET</MonoLabel>
+                <dl className="mt-4">
+                  <SpecRow label="SECTOR">{project.sector}</SpecRow>
+                  <SpecRow label="ROLE">{project.role}</SpecRow>
+                  <SpecRow label="AGENCY">
+                    <span className="flex items-center gap-3">
+                      {agency.name}
+                      <span className="relative inline-block h-4 w-14">
+                        <Image
+                          src={agency.logo}
+                          alt=""
+                          fill
+                          sizes="56px"
+                          className="object-contain object-left opacity-80"
+                        />
+                      </span>
+                    </span>
+                  </SpecRow>
+                  <SpecRow label="YEAR">{project.year}</SpecRow>
+                  {project.duration ? (
+                    <SpecRow label="DURATION">{project.duration}</SpecRow>
+                  ) : null}
+                  <SpecRow label="TYPE">
+                    {project.type === "internal" ? "INTERNAL · PKG IT" : "CLIENT · PKG IT"}
+                  </SpecRow>
+                </dl>
 
-            {copyBlocks.map((block, i) => (
-              <section key={block.key} className="grid grid-cols-1 gap-y-4 border-t border-rule pt-6 lg:grid-cols-12 lg:gap-x-6">
-                <MonoLabel as="h2" className="lg:col-span-3">
-                  <span>[ {String(i + 1).padStart(2, "0")} ]</span>
-                  <span className="ml-3">{block.label}</span>
-                </MonoLabel>
-                {block.key === "challenge" ? (
-                  <p className="max-w-[58ch] text-body lg:col-span-8 lg:col-start-5">{block.body[0]}</p>
-                ) : (
-                  <ul className="max-w-[58ch] space-y-3 text-body lg:col-span-8 lg:col-start-5">
-                    {block.body.map((item) => (
-                      <li key={item} className="border-l border-rule pl-4">{item}</li>
+                <div className="mt-5 border-t border-rule-inv pt-4">
+                  <MonoLabel className="text-chalk-mute">BUILT WITH</MonoLabel>
+                  <ul className="mt-3 flex flex-wrap gap-2.5">
+                    {project.stack.map((tech) => (
+                      <li
+                        key={tech}
+                        title={tech}
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-rule-inv bg-white/[0.05] text-signal"
+                      >
+                        <TechIcon name={tech} className="h-5 w-5" />
+                        <span className="sr-only">{tech}</span>
+                      </li>
                     ))}
                   </ul>
-                )}
-              </section>
-            ))}
+                </div>
+              </div>
+            </aside>
 
-            <div className="flex flex-wrap items-center gap-x-10 gap-y-6">
-              <Button href={project.siteUrl ?? project.url} external>
-                Open live site <span aria-hidden="true">↗</span>
-              </Button>
+            <div className="space-y-16 lg:col-span-7 lg:col-start-6">
+              {copyBlocks.map((block, i) => (
+                <section key={block.key}>
+                  <div className="flex items-baseline justify-between gap-6 border-t border-rule-inv pt-4">
+                    <MonoLabel as="h2">
+                      <span className="text-signal">[ {pad(i + 2)} ]</span>
+                      <span className="ml-3">{block.label}</span>
+                    </MonoLabel>
+                  </div>
+                  {block.key === "challenge" ? (
+                    <RevealText
+                      as="p"
+                      variant="fade"
+                      className="mt-6 max-w-[58ch] text-body leading-relaxed text-chalk"
+                    >
+                      {block.body[0]}
+                    </RevealText>
+                  ) : (
+                    <ul className="mt-6 max-w-[58ch] space-y-4">
+                      {block.body.map((item) => (
+                        <li key={item} className="flex gap-4">
+                          <span
+                            aria-hidden="true"
+                            className="mt-2.5 h-1.5 w-1.5 shrink-0 bg-signal"
+                          />
+                          <span className="text-body leading-relaxed text-chalk">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              ))}
             </div>
+          </div>
 
-            {/* next project — horizontal wipe via the curtain. PRD §5.5 */}
-            <div className="border-t border-rule pt-10">
-              <MonoLabel className="text-ink-mute">NEXT BUILD</MonoLabel>
-              <Link
-                href={`/work/${next.slug}`}
-                data-transition="horizontal"
-                className="group mt-4 inline-block"
-              >
-                <span className="block font-display text-h2 leading-display tracking-display transition-colors group-hover:text-ink-mute">
-                  {next.client}
-                </span>
-                <MonoLabel as="span" className="mt-3 block text-ink-mute">
-                  {next.sector} · {next.year} <span aria-hidden="true">→</span>
-                </MonoLabel>
-              </Link>
-            </div>
+          {/* ── the journey down their page, drawn past the gate */}
+          <PageScrub
+            src={`/shots/${project.slug}.webp`}
+            alt={`${project.client} — the site as it appears while scrolling, frame by frame`}
+            index={scrubIndex}
+            frames={shotFrames[project.slug] ?? 0}
+          />
+
+          {/* ── the way out */}
+          <div className="flex flex-wrap items-center gap-x-10 gap-y-6">
+            <Button href={project.siteUrl ?? project.url} tone="dark" external>
+              Open live site <span aria-hidden="true">↗</span>
+            </Button>
+            <Link href="/#work" className="link-draw font-mono text-mono uppercase tracking-mono">
+              Back to the auditorium
+            </Link>
+          </div>
+
+          <div className="border-t border-rule-inv pt-10">
+            <MonoLabel className="text-chalk-mute">NEXT BUILD</MonoLabel>
+            <Link
+              href={`/work/${next.slug}`}
+              data-transition="horizontal"
+              className="group mt-4 inline-block"
+            >
+              <span className="block font-display text-h2 uppercase leading-display tracking-display transition-colors group-hover:text-signal">
+                {next.client}
+              </span>
+              <MonoLabel as="span" className="mt-3 block text-chalk-mute">
+                {next.sector} · {next.year} <span aria-hidden="true">→</span>
+              </MonoLabel>
+            </Link>
           </div>
         </div>
       </main>

@@ -10,7 +10,8 @@
     "fetch-logos": "node scripts/fetch-logos.mjs",
     "fetch-fonts": "node scripts/fetch-fonts.mjs",
     "generate-favicons": "node scripts/generate-favicons.mjs",
-    "generate-og": "node scripts/generate-og.mjs"
+    "generate-og": "node scripts/generate-og.mjs",
+    "generate-shots": "node scripts/generate-shots.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
