@@ -1,7 +1,10 @@
+import Image from "next/image";
 import SectionHeader from "@/components/ui/SectionHeader";
 import MonoLabel from "@/components/ui/MonoLabel";
 import RevealText from "@/components/ui/RevealText";
+import TechIcon from "@/components/ui/TechIcon";
 import CapabilityOrbit from "@/components/capabilities/CapabilityOrbit";
+import { markSrc } from "@/components/ui/techMark";
 import { getCapabilities, getProjects } from "@/lib/content";
 
 /**
@@ -50,24 +53,60 @@ export default async function Capabilities() {
           <CapabilityOrbit groups={groups} />
         </div>
 
-        {/* the spec table — mobile, reduced motion, no-JS, and the crawlers */}
-        <ul className="group/table border-t border-rule-inv lg:motion-safe:hidden">
-          {groups.map((row) => (
-            <li
-              key={row.group}
-              className="grid grid-cols-1 gap-y-3 border-b border-rule-inv py-9 transition-opacity hover:!opacity-100 group-hover/table:opacity-40 lg:grid-cols-12 lg:gap-x-6"
-            >
-              <MonoLabel className="text-chalk-mute lg:col-span-3">{row.group}</MonoLabel>
-              <p className="flex flex-wrap gap-x-8 gap-y-2 lg:col-span-9">
-                {row.items.map((item) => (
-                  <span key={item.name} className="text-h3 font-medium">
-                    {item.name}
-                  </span>
-                ))}
-              </p>
-            </li>
+        {/* The same four systems for phones, reduced motion, no-JS and the
+            crawlers — the sphere's marks laid flat. Every group is open: on a
+            small screen hiding three quarters of the answer behind tabs costs
+            more than the scroll it saves. */}
+        <div className="space-y-10 lg:motion-safe:hidden">
+          {groups.map((row, i) => (
+            <section key={row.group}>
+              <div className="flex items-baseline justify-between gap-4 border-t border-rule-inv pt-4">
+                <MonoLabel>
+                  <span className="text-signal">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="ml-3">{row.group.toUpperCase()}</span>
+                </MonoLabel>
+                <MonoLabel className="text-chalk-mute">
+                  {String(row.items.length).padStart(2, "0")} ITEMS
+                </MonoLabel>
+              </div>
+
+              <ul className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3">
+                {row.items.map((item) => {
+                  const mark = markSrc(item.name);
+                  return (
+                    <li key={item.name} className="flex min-w-0 items-center gap-3">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/25 bg-[rgba(223,225,219,0.95)]">
+                        {mark ? (
+                          <Image
+                            src={mark}
+                            alt=""
+                            width={24}
+                            height={24}
+                            className="h-6 w-6 object-contain"
+                          />
+                        ) : (
+                          <TechIcon name={item.name} className="h-5 w-5 text-ink" />
+                        )}
+                      </span>
+                      <span className="min-w-0">
+                        {/* wraps rather than truncates — "TAILWIND C…" tells
+                            the reader nothing they did not already know */}
+                        <span className="block font-mono text-[0.82rem] uppercase leading-tight tracking-[0.06em] text-chalk">
+                          {item.name}
+                        </span>
+                        {item.count > 0 ? (
+                          <span className="block font-mono text-[0.62rem] uppercase tracking-mono text-chalk-mute">
+                            {item.count}/11 BUILDS
+                          </span>
+                        ) : null}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
           ))}
-        </ul>
+        </div>
       </div>
     </section>
   );

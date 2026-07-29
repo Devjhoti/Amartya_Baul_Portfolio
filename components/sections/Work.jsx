@@ -12,7 +12,6 @@ import RevealText from "@/components/ui/RevealText";
 import ScrambleText from "@/components/ui/ScrambleText";
 import TechIcon from "@/components/ui/TechIcon";
 import LiveRig from "@/components/work/LiveRig";
-import LabelPlate from "@/components/work/LabelPlate";
 import Faq from "@/components/sections/Faq";
 
 // Three.js stays out of the main bundle — same treatment as the hero rig. The
@@ -276,6 +275,30 @@ export default function Work({ projects }) {
 
   const jumpTo = (i) => swapRef.current?.(i);
 
+  // Phones have no walls, so the deck itself reports what is on screen: the
+  // card holding the centre of the track becomes the active one and the plate
+  // below re-reads. Observed against the track, not the viewport, so it
+  // tracks the swipe rather than the page scroll.
+  useEffect(() => {
+    if (isDesktop) return;
+    const track = stageRef.current;
+    if (!track) return;
+    const rigs = gsap.utils.toArray("[data-rig]", track);
+    if (!rigs.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActiveIndex(rigs.indexOf(entry.target));
+        }
+      },
+      { root: track, threshold: 0.6 }
+    );
+    rigs.forEach((r) => io.observe(r));
+    return () => io.disconnect();
+  }, [isDesktop, projects.length]);
+
+  const shown = projects[activeIndex] ?? projects[0];
+
   return (
     <section id="work" className="text-chalk">
       <div className="container pt-section-half">
@@ -294,14 +317,20 @@ export default function Work({ projects }) {
         </div>
       </div>
 
-      {/* the auditorium is full-bleed: the walls run from the viewport edges
-          to the screen edges, exactly the marked trapezoids */}
+      {/* One tree, two rooms. On a phone the stage is a snap deck the reader
+          swipes; on desktop GSAP lifts the same rigs out of flow into the
+          full-bleed auditorium, where the walls run from the viewport edges
+          to the screen edges. */}
       <div
         ref={stageRef}
-        className="relative mt-16 space-y-24 px-[var(--page-margin)] pb-20 lg:space-y-0 lg:px-0 lg:pb-0"
+        className="relative mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-[var(--page-margin)] pb-4 [-ms-overflow-style:none] [scrollbar-width:none] lg:mt-16 lg:block lg:snap-none lg:overflow-visible lg:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden"
       >
           {projects.map((p, i) => (
-            <div key={p.slug} data-rig="">
+            <div
+              key={p.slug}
+              data-rig=""
+              className="w-[86vw] shrink-0 snap-center sm:w-[70vw] lg:w-auto"
+            >
               {/* the screen — pitched back a touch, like looking up at it */}
               <div className="[perspective:1400px]">
                 <div className="[transform:rotateX(2deg)] [transform-origin:50%_100%]">
@@ -315,11 +344,6 @@ export default function Work({ projects }) {
                     onStatus={handleStatus}
                   />
                 </div>
-              </div>
-
-              {/* mobile has no walls — a slim identity line under the screen */}
-              <div className="mt-1 lg:hidden">
-                <LabelPlate project={p} />
               </div>
             </div>
           ))}
@@ -481,6 +505,59 @@ export default function Work({ projects }) {
           </div>
       </div>
 
+      {/* the phone's spec wall: one plate under the deck, re-reading as the
+          reader swipes — everything the two auditorium walls carry, stacked */}
+      <div className="container mt-5 pb-20 lg:hidden">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-rule-inv pt-4">
+          <MonoLabel className="whitespace-nowrap">
+            <span className="text-signal">{String(activeIndex + 1).padStart(2, "0")}</span>
+            <span className="ml-3">{shown.client}</span>
+          </MonoLabel>
+          <MonoLabel className="shrink-0 whitespace-nowrap text-chalk-mute">
+            {String(activeIndex + 1).padStart(2, "0")} /{" "}
+            {String(projects.length).padStart(2, "0")}
+          </MonoLabel>
+        </div>
+
+        <span aria-hidden="true" className="mt-3 block h-px w-full bg-rule-inv">
+          <span
+            className="block h-full bg-signal transition-[width] duration-300 ease-out"
+            style={{ width: `${((activeIndex + 1) / projects.length) * 100}%` }}
+          />
+        </span>
+
+        <p className="mt-5 text-body leading-relaxed text-chalk-mute">{shown.tagline}</p>
+
+        {/* the plate's own compact cut: the full LabelPlate truncated its
+            meta at this width, which loses the year mid-word */}
+        <div className="mt-5 flex items-start gap-4">
+          <span
+            className={`relative mt-0.5 h-6 w-20 shrink-0 ${
+              shown.slug === "anowar-ispat" ? "invert" : ""
+            }`}
+          >
+            <Image
+              src={shown.logo}
+              alt=""
+              fill
+              sizes="80px"
+              className="object-contain object-left opacity-80"
+            />
+          </span>
+          <div className="min-w-0 space-y-1.5">
+            <MonoLabel className="text-chalk">
+              {shown.sector} · {shown.year}
+            </MonoLabel>
+            <MonoLabel className="text-chalk-mute">{shown.stack.join(" · ")}</MonoLabel>
+            <MonoLabel className="text-chalk-mute">
+              {shown.type === "internal" ? "INTERNAL · PKG IT" : "CLIENT · PKG IT"}
+            </MonoLabel>
+          </div>
+        </div>
+
+        <MonoLabel className="mt-6 text-chalk-mute">SWIPE · TAP TO OPEN</MonoLabel>
+      </div>
+
       {/* the FAQ band — the tornado turns behind it on a TRANSPARENT ground,
           its strands tinted to the smoke's own greens so the two read as one
           weather system, not a black poster pasted into the page */}
@@ -497,10 +574,12 @@ export default function Work({ projects }) {
             speed={10}
             direction="right"
             dots
-            dotOptions={{ count: isDesktop ? 8000 : 2200, color: "#d7e0da" }}
+            // a phone draws a far thinner funnel: 240 strands and 8000 dots is
+            // a laptop's budget, and the shape still reads at a fifth of it
+            dotOptions={{ count: isDesktop ? 8000 : 900, color: "#d7e0da" }}
             comets
-            cometOptions={{ color: "#E5C11F" }}
-            lineOptions={{ count: isDesktop ? 240 : 120, glow: 7, color: "#96a098" }}
+            cometOptions={{ color: "#E5C11F", count: isDesktop ? 10 : 4 }}
+            lineOptions={{ count: isDesktop ? 240 : 55, glow: 7, color: "#96a098" }}
           />
           {/* machine-toned scrims, not black: a faint veil plus a deeper pool
               over the funnel's core — the answers stay readable dead centre

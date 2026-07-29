@@ -94,12 +94,12 @@ export default async function CaseStudy({ params }) {
         {/* ── the name */}
         <header className="pb-14 pt-32">
           <div className="container space-y-10">
-            <div className="flex items-baseline justify-between gap-6 border-t border-rule-inv pt-4">
-              <MonoLabel>
+            <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-rule-inv pt-4">
+              <MonoLabel className="whitespace-nowrap">
                 <span className="text-signal">[ {no} ]</span>
                 <span className="ml-3">CASE STUDY</span>
               </MonoLabel>
-              <MonoLabel className="text-chalk-mute">
+              <MonoLabel className="whitespace-nowrap text-chalk-mute">
                 BUILD {no} / {String(projects.length).padStart(2, "0")}
               </MonoLabel>
             </div>
@@ -120,12 +120,14 @@ export default async function CaseStudy({ params }) {
         <div className="container space-y-24 pb-section-half">
           {/* ── 01 · running now */}
           <section>
-            <div className="flex items-baseline justify-between gap-6 border-t border-rule-inv pt-4">
-              <MonoLabel>
+            <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-rule-inv pt-4">
+              <MonoLabel className="whitespace-nowrap">
                 <span className="text-signal">[ 01 ]</span>
                 <span className="ml-3">RUNNING NOW</span>
               </MonoLabel>
-              <MonoLabel className="text-chalk-mute">LIVE SITE · NOT A SCREENSHOT</MonoLabel>
+              <MonoLabel className="whitespace-nowrap text-chalk-mute">
+                LIVE SITE · NOT A SCREENSHOT
+              </MonoLabel>
             </div>
             <div className="mt-8">
               <CaseEmbed project={project} />
@@ -190,8 +192,8 @@ export default async function CaseStudy({ params }) {
             <div className="space-y-16 lg:col-span-7 lg:col-start-6">
               {copyBlocks.map((block, i) => (
                 <section key={block.key}>
-                  <div className="flex items-baseline justify-between gap-6 border-t border-rule-inv pt-4">
-                    <MonoLabel as="h2">
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-rule-inv pt-4">
+                    <MonoLabel as="h2" className="whitespace-nowrap">
                       <span className="text-signal">[ {pad(i + 2)} ]</span>
                       <span className="ml-3">{block.label}</span>
                     </MonoLabel>

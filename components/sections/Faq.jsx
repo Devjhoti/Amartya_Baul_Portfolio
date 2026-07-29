@@ -63,12 +63,12 @@ export default function Faq() {
     >
       <div className="grid grid-cols-1 gap-y-12 lg:grid-cols-12 lg:gap-x-6">
         <div className="space-y-8 lg:col-span-4">
-          <div className="flex items-baseline justify-between gap-6 border-t border-rule-inv pt-4">
-            <MonoLabel>
+          <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-rule-inv pt-4">
+            <MonoLabel className="whitespace-nowrap">
               <span className="text-signal">[ FAQ ]</span>
               <span className="ml-3">STRAIGHT ANSWERS</span>
             </MonoLabel>
-            <MonoLabel className="text-chalk-mute">
+            <MonoLabel className="whitespace-nowrap text-chalk-mute">
               {String(FAQS.length).padStart(2, "0")} QUESTIONS
             </MonoLabel>
           </div>

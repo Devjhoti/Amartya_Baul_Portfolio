@@ -5,3 +5,6 @@ out/
 .env*
 .claude/
 .DS_Store
+# throwaway Chrome profiles from the capture scripts
+.shots-profile/
+.og-profile/

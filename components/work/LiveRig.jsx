@@ -174,7 +174,7 @@ export default function LiveRig({
           mirror otherwise */}
       <div
         aria-hidden="true"
-        className="pointer-events-none relative mt-3 h-24 overflow-hidden opacity-40 lg:h-32"
+        className="pointer-events-none relative mt-3 h-14 overflow-hidden opacity-40 sm:h-20 lg:h-32"
         style={{ WebkitMaskImage: REFLECTION_MASK, maskImage: REFLECTION_MASK }}
       >
         {/* the poster's mirror is the floor's base coat; the live one paints

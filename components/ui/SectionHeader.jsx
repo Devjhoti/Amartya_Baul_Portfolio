@@ -23,13 +23,17 @@ export default function SectionHeader({
     <div
       data-plate-index={index}
       data-plate-label={label}
-      className={`flex items-baseline justify-between gap-6 border-t ${rule} pt-4 ${className}`}
+      // wrap as whole parts on a narrow screen: left the plate broke mid-token
+      // into "[ 04" / "] CAPABILITIES", which reads as damage, not layout
+      className={`flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t ${rule} pt-4 ${className}`}
     >
-      <MonoLabel as={headingAs}>
+      <MonoLabel as={headingAs} className="whitespace-nowrap">
         <span className={idx}>[ {index} ]</span>
         <span className="ml-3">{label}</span>
       </MonoLabel>
-      {meta ? <MonoLabel className={`text-right ${mute}`}>{meta}</MonoLabel> : null}
+      {meta ? (
+        <MonoLabel className={`whitespace-nowrap sm:text-right ${mute}`}>{meta}</MonoLabel>
+      ) : null}
     </div>
   );
 }

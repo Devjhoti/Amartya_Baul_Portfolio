@@ -43,20 +43,24 @@ export default function Process() {
 
       mm.add(MM, (ctx) => {
         const { isDesktop, reduceMotion } = ctx.conditions;
-        if (!isDesktop || reduceMotion) return;
+        // the whole gauge runs on a phone too — it is masks, slides and a
+        // hairline draw, and a phone was getting four flat rows
+        if (reduceMotion) return;
 
         const root = rootRef.current;
         const list = root.querySelector("ol");
         const rows = gsap.utils.toArray("[data-step]", root);
 
-        // the rail — a meter riding the whole list
+        // the rail — a meter riding the whole list; it only exists on desktop
         const fill = root.querySelector("[data-rail-fill]");
-        gsap.set(fill, { scaleY: 0, transformOrigin: "top" });
-        gsap.to(fill, {
-          scaleY: 1,
-          ease: "none",
-          scrollTrigger: { trigger: list, start: "top 70%", end: "bottom 40%", scrub: 0.4 },
-        });
+        if (isDesktop && fill) {
+          gsap.set(fill, { scaleY: 0, transformOrigin: "top" });
+          gsap.to(fill, {
+            scaleY: 1,
+            ease: "none",
+            scrollTrigger: { trigger: list, start: "top 70%", end: "bottom 40%", scrub: 0.4 },
+          });
+        }
 
         rows.forEach((row) => {
           const num = row.querySelector("[data-step-num]");

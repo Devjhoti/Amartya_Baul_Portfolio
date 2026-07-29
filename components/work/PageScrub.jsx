@@ -62,12 +62,12 @@ export default function PageScrub({ src, alt, index = "04", frames = 0 }) {
 
   return (
     <section ref={rootRef} className="text-chalk">
-      <div className="flex items-baseline justify-between gap-6 border-t border-rule-inv pt-4">
-        <MonoLabel>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-rule-inv pt-4">
+        <MonoLabel className="whitespace-nowrap">
           <span className="text-signal">[ {index} ]</span>
           <span className="ml-3">THE SCROLL</span>
         </MonoLabel>
-        <MonoLabel className="text-chalk-mute">
+        <MonoLabel className="whitespace-nowrap text-chalk-mute">
           {frames ? `${String(frames).padStart(2, "0")} FRAMES · ` : ""}SCROLL TO RUN
         </MonoLabel>
       </div>

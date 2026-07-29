@@ -89,7 +89,12 @@ export default function Services() {
 
       mm.add(MM, (ctx) => {
         const { isDesktop, reduceMotion } = ctx.conditions;
-        if (!isDesktop || reduceMotion) return;
+        // the entrance runs everywhere — it is transforms and opacity, and a
+        // phone was getting three static cards where the desktop got a build.
+        // Only the pointer tilt and the resting float stay desktop-bound:
+        // there is no pointer to follow, and an idle loop on a phone is
+        // battery for nothing.
+        if (reduceMotion) return;
 
         const root = rootRef.current;
         const cards = gsap.utils.toArray("[data-card]", root);
@@ -131,6 +136,8 @@ export default function Services() {
             onEnter: () => tl.play(),
           });
 
+          if (!isDesktop) return;
+
           // pointer tilt, walls-style — quickTo so it never fights itself
           const rx = gsap.quickTo(card, "rotationX", { duration: 0.5, ease: "power2.out" });
           const ry = gsap.quickTo(card, "rotationY", { duration: 0.5, ease: "power2.out" });
@@ -152,23 +159,25 @@ export default function Services() {
         });
 
         // idle float — desynced bobs, asleep whenever the section is (§9)
-        const bobs = cards.map((card, i) =>
-          gsap.to(card, {
-            y: i % 2 ? -6 : 6,
-            duration: 3.2 + i * 0.5,
-            yoyo: true,
-            repeat: -1,
-            ease: "sine.inOut",
-            paused: true,
-            delay: 1.6 + i * 0.3,
-          })
-        );
-        ScrollTrigger.create({
-          trigger: root,
-          start: "top bottom",
-          end: "bottom top",
-          onToggle: (s) => bobs.forEach((t) => (s.isActive ? t.play() : t.pause())),
-        });
+        if (isDesktop) {
+          const bobs = cards.map((card, i) =>
+            gsap.to(card, {
+              y: i % 2 ? -6 : 6,
+              duration: 3.2 + i * 0.5,
+              yoyo: true,
+              repeat: -1,
+              ease: "sine.inOut",
+              paused: true,
+              delay: 1.6 + i * 0.3,
+            })
+          );
+          ScrollTrigger.create({
+            trigger: root,
+            start: "top bottom",
+            end: "bottom top",
+            onToggle: (s) => bobs.forEach((t) => (s.isActive ? t.play() : t.pause())),
+          });
+        }
 
         return () => cleanups.forEach((fn) => fn());
       });

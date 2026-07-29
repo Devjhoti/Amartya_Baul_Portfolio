@@ -18,6 +18,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { spawn } from "node:child_process";
+import { tmpdir } from "node:os";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -54,7 +55,8 @@ const chrome = spawn(CHROME, [
   `--window-size=${WIDTH},900`,
   "--hide-scrollbars",
   "--use-gl=angle",
-  `--user-data-dir=${path.join(ROOT, ".shots-profile")}`,
+  // the throwaway profile lives in the OS temp dir, never in the repo
+  `--user-data-dir=${path.join(tmpdir(), "ab-shots-profile")}`,
   "about:blank",
 ]);
 

@@ -6,6 +6,7 @@ import { gsap, ScrollTrigger, useGSAP, MM } from "@/lib/gsap";
 import MonoLabel from "@/components/ui/MonoLabel";
 import ScrambleText from "@/components/ui/ScrambleText";
 import TechIcon from "@/components/ui/TechIcon";
+import { TECH_MARKS as ICONS } from "@/components/ui/techMark";
 
 /**
  * The capability orbit — §5.7 redesigned on client direction. Each system
@@ -26,41 +27,6 @@ const RADIUS = 235; // px — chip orbit radius inside the ~640px stage
 const Y_BAND = 0.7; // squash the poles so small counts never read as a line
 const BASE_SPIN = 0.12; // rad/s idle rotation
 const AUTO_SECONDS = 7;
-
-// Real brand marks, committed to /public/tech (devicon MIT + simple-icons
-// CC0, brand colour stamped in). Items without a published mark fall back
-// to the monochrome TechIcon glyph.
-const ICONS = {
-  React: "react.svg",
-  "Next.js": "nextjs.svg",
-  TypeScript: "typescript.svg",
-  JavaScript: "javascript.svg",
-  HTML: "html5.svg",
-  CSS: "css3.svg",
-  "Tailwind CSS": "tailwindcss.svg",
-  GSAP: "gsap.svg",
-  "Framer Motion": "framermotion.svg",
-  "Three.js": "threejs.svg",
-  Vite: "vite.svg",
-  "Node.js": "nodejs.svg",
-  Express: "express.svg",
-  JWT: "jwt.svg",
-  "Socket.IO": "socketio.svg",
-  NPM: "npm.svg",
-  Postman: "postman.svg",
-  MongoDB: "mongodb.svg",
-  Mongoose: "mongoose.svg",
-  PostgreSQL: "postgresql.svg",
-  MySQL: "mysql.svg",
-  Prisma: "prisma.svg",
-  Firebase: "firebase.svg",
-  Vercel: "vercel.svg",
-  Netlify: "netlify.svg",
-  Git: "git.svg",
-  GitHub: "github.svg",
-  Cloudinary: "cloudinary.svg",
-  Figma: "figma.svg",
-};
 
 /** Fibonacci-ish distribution, banded toward the equator. */
 function spherePoints(n) {
