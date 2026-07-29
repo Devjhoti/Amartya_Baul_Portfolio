@@ -243,10 +243,10 @@ export const projects = [
     client: "PKG IT",
     sector: "IT Services",
     chip: "anodised",
-    // The rig frames the Vercel deployment: the custom domain answers with
-    // X-Frame-Options SAMEORIGIN and cannot be embedded. Same site either way
-    // — `siteUrl` is where OPEN and the case study send people.
-    url: "https://pkg-it-portfolio.vercel.app/",
+    // pkgit.net refuses to be embedded (X-Frame-Options SAMEORIGIN), so the
+    // rig frames it back through this origin — see the rewrite in
+    // next.config.mjs. `siteUrl` is where OPEN and the case study send people.
+    url: "/pkgit-live",
     siteUrl: "https://pkgit.net",
     logo: "/logos/pkg-it.png",
     poster: "/posters/pkg-it.webp",

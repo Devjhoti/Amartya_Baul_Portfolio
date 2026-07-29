@@ -25,9 +25,14 @@ export default async function About() {
               alt="Amartya Baul"
               sizes="(min-width: 1024px) 40vw, 100vw"
             />
-            <MonoLabel className="mt-3 text-chalk-mute">
-              AMARTYA BAUL — FULL-STACK DEVELOPER
-            </MonoLabel>
+            {/* the plate under the portrait: the name carries, the role
+                answers it in signal */}
+            <div className="mt-4">
+              <p className="font-display text-h3 uppercase leading-display tracking-display text-chalk">
+                {profile.name}
+              </p>
+              <MonoLabel className="mt-2 text-signal">{profile.role}</MonoLabel>
+            </div>
           </RevealText>
 
           <RevealText
