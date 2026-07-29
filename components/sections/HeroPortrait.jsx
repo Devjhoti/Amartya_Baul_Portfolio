@@ -95,8 +95,15 @@ export default function HeroPortrait({ photo, stats, fact }) {
         // initial states first, then unhide the rig (same tick, no flash)
         gsap.set(panel, { clipPath: "inset(100% 0% 0% 0%)" });
         gsap.set(photoEl, { yPercent: 16, scale: 0.92, autoAlpha: 0, z: 50 });
+        // The cards rest forward in Z so they float clear of the photo. In
+        // perspective that also magnifies them and throws them outward from
+        // the origin, which on a phone pushed both of them off the screen
+        // edges with their labels clipped — the depth is scaled to the room
+        // available rather than the plates being nudged back in.
+        const lift = isDesktop ? 70 : 16;
+        const step = isDesktop ? 18 : 5;
         cards.forEach((c, i) =>
-          gsap.set(c, { scale: 0.5, y: 24, autoAlpha: 0, z: 70 + i * 18 })
+          gsap.set(c, { scale: 0.5, y: 24, autoAlpha: 0, z: lift + i * step })
         );
         // the signature "writes" itself in left to right; it lives inside the
         // photo layer, so position/parallax ride along automatically — only
@@ -265,29 +272,47 @@ export default function HeroPortrait({ photo, stats, fact }) {
             </p>
           </div>
 
+          {/* The plates float clear of the portrait only where there is room
+              beside it. Below lg the column is the whole screen: pulled in,
+              they land on the photo and their labels are read as clipped;
+              pushed out, they leave the viewport. So they stand down and the
+              strip below takes over. */}
           <StatCard
             value={stats[0]?.value}
             label={stats[0]?.label}
             accent
-            className="-left-3 top-[22%] sm:-left-16"
+            className="hidden lg:block lg:-left-16 lg:top-[22%]"
           />
           <StatCard
             value={stats[2]?.value}
             label={stats[2]?.label}
-            className="-right-3 top-[7%] sm:-right-16"
+            className="hidden lg:block lg:-right-16 lg:top-[7%]"
           />
           <StatCard
             value={stats[1]?.value}
             label={stats[1]?.label}
-            className="-left-4 bottom-[6%] sm:-left-20"
+            className="hidden lg:block lg:-left-20 lg:bottom-[6%]"
           />
           <StatCard
             label={fact}
-            className="-right-3 bottom-[30%] hidden max-w-[170px] sm:-right-20 sm:block"
+            className="hidden max-w-[170px] lg:block lg:-right-20 lg:bottom-[30%]"
           />
 
         </div>
       </div>
+
+      {/* the phone's cut: the same three readings, on the ground, in the
+          three-up the About section already uses */}
+      <ul className="mt-8 grid grid-cols-3 gap-x-4 border-t border-rule-inv pt-5 lg:hidden">
+        {stats.map((s) => (
+          <li key={s.label}>
+            <p className="font-display text-h3 leading-display tracking-display text-signal">
+              {s.value}
+            </p>
+            <MonoLabel className="mt-2 text-chalk-mute">{s.label}</MonoLabel>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

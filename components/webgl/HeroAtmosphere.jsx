@@ -18,6 +18,21 @@ import { vertexShader, fragmentShader } from "./shaders/atmosphere";
  */
 const FRAME = 1 / 30;
 
+/**
+ * How hard to draw. A full-screen fragment shader costs pixels above all, so
+ * a phone is held to DPR 1 — at 390 CSS px that is ~330k pixels against a
+ * laptop's ~2.6M, and the noise field looks identical at this softness. The
+ * frame budget eases off a touch too, since nothing here moves fast enough
+ * for 30 against 24 to be visible.
+ */
+const draw = () => {
+  const phone = window.innerWidth < 1024;
+  return {
+    dpr: Math.min(window.devicePixelRatio || 1, phone ? 1 : 1.5),
+    frame: phone ? 1 / 24 : FRAME,
+  };
+};
+
 export default function HeroAtmosphere() {
   const wrapRef = useRef(null);
 
@@ -48,7 +63,8 @@ export default function HeroAtmosphere() {
       canvas.remove();
       return;
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    const budget = draw();
+    renderer.setPixelRatio(budget.dpr);
 
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -93,7 +109,7 @@ export default function HeroAtmosphere() {
       const dt = Math.min((now - last) / 1000, 0.1);
       last = now;
       acc += dt;
-      if (acc < FRAME) return; // 30fps cap
+      if (acc < budget.frame) return; // frame cap, eased off on phones
       elapsed += acc;
       acc = 0;
       material.uniforms.uTime.value = elapsed;
