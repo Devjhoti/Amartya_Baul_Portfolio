@@ -186,7 +186,7 @@ export default function Services() {
   );
 
   return (
-    <section ref={rootRef} className="py-section-half text-chalk">
+    <section id="services" ref={rootRef} className="py-section-half text-chalk">
       <div className="container space-y-14">
         <div className="space-y-10">
           <SectionHeader

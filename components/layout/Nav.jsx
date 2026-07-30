@@ -5,6 +5,8 @@ import Link from "next/link";
 import Monogram from "@/components/ui/Monogram";
 import Button from "@/components/ui/Button";
 import MagneticWrap from "@/components/ui/MagneticWrap";
+import PaletteTrigger from "@/components/ui/PaletteTrigger";
+import SoundToggle from "@/components/ui/SoundToggle";
 import { gsap, ScrollTrigger, useGSAP, MM } from "@/lib/gsap";
 
 /**
@@ -105,7 +107,7 @@ export default function Nav() {
           <a href="#top" aria-label="Amartya Baul — top of page" className="block">
             <Monogram framed={false} className="h-11 w-11" />
           </a>
-          <nav aria-label="Primary" className="flex items-center gap-10">
+          <nav aria-label="Primary" className="flex items-center gap-4 md:gap-8">
             <ul className="hidden items-center gap-8 md:flex">
               {LINKS.map(([label, href]) => (
                 <li key={href}>
@@ -118,6 +120,10 @@ export default function Nav() {
                 </li>
               ))}
             </ul>
+            <div className="flex items-center gap-1">
+              <SoundToggle />
+              <PaletteTrigger variant="bar" />
+            </div>
             <MagneticWrap>
               <Button href="/#contact" tone="dark" pill>
                 Get in touch
@@ -154,6 +160,8 @@ export default function Nav() {
               </li>
             ))}
           </ul>
+          <SoundToggle className="!h-7 !w-7" />
+          <PaletteTrigger variant="pill" />
           <Link
             href="/#contact"
             className="rounded-full bg-chalk px-4 py-1.5 font-body text-small font-medium text-ink transition-colors hover:bg-concrete-2"
@@ -177,7 +185,9 @@ export default function Nav() {
         >
           {/* no monogram here: at 320px it was the difference between the
               dock sitting inside its margins and hanging over them, and the
-              top bar already carries the mark */}
+              top bar already carries the mark. The palette takes that slot
+              instead, and stands down at the same width for the same reason. */}
+          <PaletteTrigger variant="dock" />
           {DOCK_LINKS.map(([label, href, id]) => (
             <a
               key={href}
@@ -200,7 +210,7 @@ export default function Nav() {
           <Link
             href="/#contact"
             aria-current={active === "contact" ? "true" : undefined}
-            className="flex h-11 shrink-0 items-center rounded-full bg-chalk px-5 font-mono text-mono uppercase tracking-mono text-ink transition-colors active:bg-concrete-2"
+            className="flex h-11 shrink-0 items-center rounded-full bg-chalk px-4 font-mono text-mono uppercase tracking-mono text-ink transition-colors active:bg-concrete-2 min-[400px]:px-5"
           >
             Contact
           </Link>

@@ -25,10 +25,25 @@ export default async function Hero() {
     // here is now the fixed layer behind every section
     <section className="relative overflow-hidden text-chalk">
       <div className="container relative z-10 flex min-h-dvh flex-col">
-        <div className="mt-24 flex items-baseline justify-between border-t border-rule-inv pt-4">
+        <div className="mt-24 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-rule-inv pt-4">
           <MonoLabel className="whitespace-nowrap">
             <span className="text-signal">[ 00 ]</span>
             <span className="ml-3">DHAKA, BD — 20+ BUILDS SHIPPED</span>
+          </MonoLabel>
+          {/* the standing light: whether he is taking work, said on the first
+              line of the site rather than buried in a paragraph */}
+          <MonoLabel className="flex items-center gap-2 whitespace-nowrap text-chalk-mute">
+            <span
+              aria-hidden="true"
+              className={`inline-block h-1.5 w-1.5 rounded-full ${
+                profile.availability?.open
+                  ? "animate-pulse bg-signal"
+                  : "bg-chalk-mute"
+              }`}
+            />
+            {profile.availability?.open
+              ? profile.availability.openLabel
+              : profile.availability?.closedLabel}
           </MonoLabel>
         </div>
 
@@ -83,7 +98,7 @@ export default async function Hero() {
             in the fallback and real mono, or the swap shifts the whole hero. */}
         <div className="flex flex-col items-start gap-2 border-t border-rule-inv pb-6 pt-4 lg:flex-row lg:items-baseline lg:justify-between lg:gap-6">
           <MonoLabel className="whitespace-nowrap text-chalk-mute">
-            AMARTYA BAUL — FULL-STACK DEVELOPER
+            <span className="text-signal">{profile.name}</span> — {profile.role}
           </MonoLabel>
           <MonoLabel className="whitespace-nowrap text-chalk-mute">[ SCROLL ↓ ]</MonoLabel>
         </div>

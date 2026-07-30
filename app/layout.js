@@ -8,6 +8,9 @@ import Cursor from "@/components/layout/Cursor";
 import Preloader from "@/components/layout/Preloader";
 import PageTransition from "@/components/layout/PageTransition";
 import ScrollProgress from "@/components/layout/ScrollProgress";
+import ConsoleSignature from "@/components/layout/ConsoleSignature";
+import SoundBus from "@/components/layout/SoundBus";
+import CommandPalette from "@/components/ui/CommandPalette";
 import "./globals.css";
 
 /**
@@ -149,6 +152,9 @@ export default async function RootLayout({ children }) {
         <ScrollProgress />
         <Cursor />
         <PageTransition />
+        <CommandPalette />
+        <SoundBus />
+        <ConsoleSignature />
         <Preloader />
       </body>
     </html>

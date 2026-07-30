@@ -32,6 +32,15 @@ export const profile = {
     { value: 11, suffix: "", label: "Industries served" },
   ],
 
+  // Shown on the hero's top plate with a live LED. Flip `open` to false when
+  // the books are full — the plate keeps its place and only the wording and
+  // the colour of the light change, so nobody has to touch a component.
+  availability: {
+    open: true,
+    openLabel: "AVAILABLE FOR WORK",
+    closedLabel: "BOOKED — ENQUIRIES WELCOME",
+  },
+
   contact: {
     email: "amartyabaul69@gmail.com",
     whatsapp: "01882222833",

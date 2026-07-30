@@ -36,7 +36,7 @@ export default async function Capabilities() {
   }));
 
   return (
-    <section className="py-section-half text-chalk">
+    <section id="capabilities" className="py-section-half text-chalk">
       <div className="container space-y-14">
         <div className="space-y-10">
           <SectionHeader

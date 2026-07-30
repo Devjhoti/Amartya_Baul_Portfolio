@@ -101,7 +101,7 @@ export default function Process() {
   );
 
   return (
-    <section ref={rootRef} className="py-section-half text-chalk">
+    <section id="process" ref={rootRef} className="py-section-half text-chalk">
       <div className="container space-y-14">
         <div className="space-y-10">
           <SectionHeader tone="dark" index="06" label="PROCESS" meta="4 STEPS · EVERY BUILD" />
