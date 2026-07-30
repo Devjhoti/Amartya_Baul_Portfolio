@@ -118,10 +118,29 @@ export default function Process() {
             <li
               key={step.name}
               data-step=""
-              className="relative grid grid-cols-1 gap-y-4 py-10 lg:grid-cols-12 lg:gap-x-6"
+              className="group relative grid grid-cols-1 gap-y-4 py-10 lg:grid-cols-12 lg:gap-x-6"
             >
+              {/* Glass plate — the same material as the FAQ answers, raised
+                  under whichever step the cursor is on. The blur switches on
+                  with the hover rather than sitting behind four transparent
+                  plates for the whole scroll; at rest this is one invisible
+                  span with no filter attached to it.
+
+                  It is first in the row on purpose: everything after it is
+                  positioned too, so the content paints over the glass in DOM
+                  order without an `isolate` — which would make the row its own
+                  backdrop root and leave the blur with nothing to sample. */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute -inset-x-4 inset-y-1 border border-white/15 bg-white/[0.06] opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100 group-hover:backdrop-blur-md motion-reduce:transition-none lg:-inset-x-5"
+                style={{
+                  boxShadow:
+                    "0 16px 32px -16px rgba(0,0,0,0.5), inset 1px 1px 0 rgba(255,255,255,0.12)",
+                }}
+              />
+
               {/* the numeral pops out of its own mask */}
-              <p aria-hidden="true" className="overflow-hidden lg:col-span-2">
+              <p aria-hidden="true" className="relative overflow-hidden lg:col-span-2">
                 <span
                   data-step-num=""
                   className="block font-display text-display leading-display tracking-display text-chalk-mute transition-colors duration-500 [[data-active]_&]:text-signal"
@@ -129,8 +148,11 @@ export default function Process() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
               </p>
-              <h3 className="text-h3 lg:col-span-3 lg:pt-2">{step.name}</h3>
-              <p data-step-body="" className="max-w-[58ch] text-body text-chalk-mute lg:col-span-7 lg:pt-2">
+              <h3 className="relative text-h3 lg:col-span-3 lg:pt-2">{step.name}</h3>
+              <p
+                data-step-body=""
+                className="relative max-w-[58ch] text-body text-chalk-mute lg:col-span-7 lg:pt-2"
+              >
                 {step.body}
               </p>
               {/* the row's hairline, drawn left to right on arrival */}
