@@ -7,17 +7,24 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import MonoLabel from "@/components/ui/MonoLabel";
 
 /**
- * Trusted By — the only logo marquee on the site. Two rows, opposite
- * directions, base speeds 1.0 / 0.82 so they never sync. Desktop: Lenis scroll
- * velocity drives the timeline timeScale via gsap.quickTo, easing back to
- * base. Mobile: constant speed. Reduced motion and no-JS: the SSR default is
- * a wrapped, fully visible logo wall — no clones shown, nothing moves.
+ * Trusted By — the only logo marquee on the site, and only on a desktop with
+ * motion allowed. Two rows, opposite directions, base speeds 1.0 / 0.82 so
+ * they never sync; Lenis scroll velocity drives the timeScale via
+ * gsap.quickTo, easing back to base.
+ *
+ * Phones, reduced motion and no-JS get a still wall instead. The marquee used
+ * to run there at a constant speed, and it was the one thing on the page a
+ * reader called out as stuttering while they dragged: a translating track is
+ * a very wide composited layer, and a phone re-rasters it against the scroll.
+ * A wall holds still, costs nothing, and puts all eleven marks on screen at
+ * once — which two clipped rows never do at 390px.
+ *
  * Clicking a logo jumps to that project in the Live Rig. PKG IT appears once,
- * end of row 2, behind a signal divider, captioned AGENCY. PRD §5.3 · §2.2.1
+ * behind a signal divider, captioned AGENCY. PRD §5.3 · §2.2.1 · §9
  */
 const GAP = 64; // matches gap-x-16, keeps the loop seam invisible
 
-function LogoButton({ project, index, clone }) {
+function LogoButton({ project, index, clone, box = "h-8 w-28", className = "" }) {
   const jump = () => {
     if (window.__rigJump) {
       window.__rigJump(index);
@@ -33,9 +40,9 @@ function LogoButton({ project, index, clone }) {
       onClick={jump}
       tabIndex={clone ? -1 : 0}
       aria-label={`Go to ${project.client} in the work section`}
-      className="group relative block"
+      className={`group relative block ${className}`}
     >
-      <span className="relative block h-8 w-28">
+      <span className={`relative block ${box}`}>
         <Image
           src={project.logo}
           alt={clone ? "" : `${project.client} logo`}
@@ -103,7 +110,10 @@ export default function Marquee({ projects, agency }) {
 
       mm.add(MM, (ctx) => {
         const { isDesktop, reduceMotion } = ctx.conditions;
-        if (reduceMotion) return; // static wrapped wall
+        // the marquee markup is display:none below lg and under reduced
+        // motion, so there is nothing here to drive — and driving it anyway
+        // would keep a rAF transform alive against a hidden subtree
+        if (reduceMotion || !isDesktop) return;
 
         const tracks = gsap.utils.toArray("[data-mq-track]", rootRef.current);
         if (tracks.length !== 2) return;
@@ -140,26 +150,21 @@ export default function Marquee({ projects, agency }) {
         });
         io.observe(rootRef.current);
 
-        if (isDesktop) {
-          // scroll velocity → timeScale, easing back to base. PRD §5.3
-          const ts1 = gsap.quickTo(row1, "timeScale", { duration: 0.5, ease: "power2.out" });
-          const ts2 = gsap.quickTo(row2, "timeScale", { duration: 0.5, ease: "power2.out" });
-          const sample = () => {
-            if (!visible) return;
-            const v = Math.abs(window.__lenis?.velocity ?? 0);
-            const boost = gsap.utils.clamp(0, 2.5, v / 45);
-            ts1(1 + boost);
-            ts2(0.82 * (1 + boost));
-          };
-          gsap.ticker.add(sample);
-          return () => {
-            io.disconnect();
-            gsap.ticker.remove(sample);
-            gsap.set(tracks, { clearProps: "willChange" });
-          };
-        }
+        // scroll velocity → timeScale, easing back to base. PRD §5.3
+        const ts1 = gsap.quickTo(row1, "timeScale", { duration: 0.5, ease: "power2.out" });
+        const ts2 = gsap.quickTo(row2, "timeScale", { duration: 0.5, ease: "power2.out" });
+        const sample = () => {
+          if (!visible) return;
+          const v = Math.abs(window.__lenis?.velocity ?? 0);
+          const boost = gsap.utils.clamp(0, 2.5, v / 45);
+          ts1(1 + boost);
+          ts2(0.82 * (1 + boost));
+        };
+        gsap.ticker.add(sample);
+
         return () => {
           io.disconnect();
+          gsap.ticker.remove(sample);
           gsap.set(tracks, { clearProps: "willChange" });
         };
       });
@@ -178,7 +183,33 @@ export default function Marquee({ projects, agency }) {
           headingAs="h2"
         />
 
-        <div className="space-y-14">
+        {/* Phones, reduced motion and no-JS get a wall instead of a marquee.
+            Two rows of a translating track are two very wide composited
+            layers, and on a phone they are re-rastered against every scroll
+            frame — the strip stutters while the page itself moves fine.
+            A wall costs nothing, holds still, and shows all eleven marks at
+            once, which on a 390px screen a marquee never does.
+
+            It also fixes what the old fallback did: both rows carry the full
+            list, so standing them still showed every logo twice. */}
+        <ul className="grid grid-cols-3 items-center gap-x-6 gap-y-9 sm:grid-cols-4 lg:motion-safe:hidden">
+          {projects.map((p, i) => (
+            // the cell carries the width, the button fills it, the mark
+            // centres inside. A content-sized button here collapsed the
+            // fill image to nothing and the wall rendered empty.
+            <li key={p.slug}>
+              <LogoButton project={p} index={i} box="h-7 w-full" className="w-full" />
+            </li>
+          ))}
+        </ul>
+        {/* no separate AGENCY plate here: pkg-it is one of the eleven and is
+            already in the grid, and the section header two lines up reads
+            "11 BRANDS · DELIVERED AT PKG IT". Repeating the mark inside one
+            screenful looked like a mistake. The desktop marquee keeps its
+            divider, where the rows scroll past and the pairing is not
+            visible at once. */}
+
+        <div className="hidden space-y-14 lg:motion-safe:block">
           <div className="overflow-hidden">
             <div data-mq-track="" className="flex">
               <RowContent projects={projects} />
