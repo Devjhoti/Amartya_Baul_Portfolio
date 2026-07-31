@@ -302,7 +302,12 @@ export const projects = [
     sector: "Polymer & Plastics",
     chip: "pellets",
     url: "https://a1-polymer-demo-web.vercel.app/",
-    logo: "/logos/a1-polymer.png", // already transparent — no background removal needed
+    // The "A1" in the supplied file is a knockout, not white ink — it reads
+    // white only against the white page it was exported for, and on this
+    // site's ground the dark page showed through it, leaving a bare red ring.
+    // The light export cards the enclosed hole and leaves the surround
+    // transparent; see scripts/light-logo.mjs. Original kept beside it.
+    logo: "/logos/a1-polymer-light.png",
     poster: "/posters/a1-polymer.webp",
     type: "client",
     context: "PKG IT",

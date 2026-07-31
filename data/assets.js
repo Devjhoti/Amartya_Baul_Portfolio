@@ -44,7 +44,7 @@ export const assets = {
     tel: "/logos/tel.png",
     "pkg-it": "/logos/pkg-it.png",
     "anowar-ispat": "/logos/anowar-ispat.png",
-    "a1-polymer": "/logos/a1-polymer.png",
+    "a1-polymer": "/logos/a1-polymer-light.png", // knockout carded — see scripts/light-logo.mjs
     "pkg-it-agency": "/logos/pkg-it-agency.png",
   },
 };
