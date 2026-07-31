@@ -16,7 +16,16 @@ import RigChassis from "./RigChassis";
  */
 const BOOT_TIMEOUT = 6000;
 
-const REFLECTION_MASK = "linear-gradient(to bottom, rgba(0,0,0,0.55), transparent 85%)";
+/**
+ * Falloff away from the contact line. A real reflection is at its strongest
+ * where the object meets the floor and dies quickly — the drop is closer to
+ * exponential than linear, because the floor scatters more of the ray the
+ * further it has to travel across it. Four stops approximate that curve: most
+ * of the strength is gone within a quarter of the band, then a long thin tail
+ * instead of a straight ramp to nothing.
+ */
+const REFLECTION_MASK =
+  "linear-gradient(to bottom, rgba(0,0,0,0.95), rgba(0,0,0,0.42) 22%, rgba(0,0,0,0.13) 55%, transparent 92%)";
 
 export default function LiveRig({
   project,
@@ -169,41 +178,72 @@ export default function LiveRig({
       />
     </a>
 
-      {/* light off the auditorium floor — a live mirror of the running frame
-          for the active screen (one extra document at most), the poster's
-          mirror otherwise */}
+      {/* Light off the auditorium floor.
+       *
+       * What the floor sees is the whole machine, not the picture on it. The
+       * bezel stands between the screen and the floor, so the bezel — and its
+       * registration marks — is the first thing reflected, and the screen's
+       * bottom rows follow behind it. The old mirror showed the picture
+       * alone, floating 12px clear of the chassis on a margin, which is why
+       * it never read as a reflection: nothing reflects with a gap under it,
+       * and nothing reflects its own middle first.
+       *
+       * The stage's perspective is inherited rather than recomputed, and that
+       * is right here: a mirror in a horizontal floor preserves yaw, and yaw
+       * is all this chassis has.
+       */}
       <div
         aria-hidden="true"
-        className="pointer-events-none relative mt-3 h-14 overflow-hidden opacity-40 sm:h-20 lg:h-32"
+        className="pointer-events-none relative h-14 overflow-hidden sm:h-20 lg:h-32"
         style={{ WebkitMaskImage: REFLECTION_MASK, maskImage: REFLECTION_MASK }}
       >
-        {/* the poster's mirror is the floor's base coat; the live one paints
-            over it once it is up, so the floor never blanks mid-swap */}
-        <Image
-          src={project.poster}
-          alt=""
-          fill
-          sizes="(min-width: 1024px) 60vw, 100vw"
-          className="-scale-y-100 object-cover object-bottom blur-[5px]"
-        />
-        {liveReflection ? (
-          <div
-            ref={reflWrapRef}
-            className="absolute left-0 top-0 h-[900px] w-[1440px] origin-top-left blur-[5px]"
-            style={{ visibility: reflShown ? "visible" : "hidden" }}
-          >
-            <iframe
-              src={project.url}
-              title=""
-              tabIndex={-1}
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin"
-              referrerPolicy="no-referrer"
-              className="pointer-events-none h-[920px] w-[1460px] -scale-y-100 border-0"
-              onLoad={() => setReflLoaded(true)}
+        {/* Two explicit boxes rather than one clever one. The flipper is
+            exactly the band, so scaleY(-1) about its centre swaps its top and
+            bottom edges; the copy is anchored to the flipper's BOTTOM, and
+            that swap lands it on the band's top — the contact line — with the
+            copy's own bottom edge against it and the rest running downward.
+            Written this way because neither box has an implicit height: the
+            alternative hangs an auto-height, aspect-ratio chassis above the
+            band on `bottom:100%` and asks the pivot to resolve against it. */}
+        <div className="absolute inset-0 -scale-y-100 opacity-[0.3] blur-[3px]">
+          <div className="absolute inset-x-0 bottom-0">
+            <RigChassis
+              screen={
+                <div className="absolute inset-0">
+                  {/* the poster's mirror is the floor's base coat; the live
+                      one paints over it once up, so the floor never blanks
+                      mid-swap. Neither is flipped itself — the pivot above
+                      does it once, for the whole machine. */}
+                  <Image
+                    src={project.poster}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1024px) 60vw, 100vw"
+                    className="object-cover"
+                  />
+                  {liveReflection ? (
+                    <div
+                      ref={reflWrapRef}
+                      className="absolute left-0 top-0 h-[900px] w-[1440px] origin-top-left"
+                      style={{ visibility: reflShown ? "visible" : "hidden" }}
+                    >
+                      <iframe
+                        src={project.url}
+                        title=""
+                        tabIndex={-1}
+                        loading="lazy"
+                        sandbox="allow-scripts allow-same-origin"
+                        referrerPolicy="no-referrer"
+                        className="pointer-events-none h-[920px] w-[1460px] border-0"
+                        onLoad={() => setReflLoaded(true)}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              }
             />
           </div>
-        ) : null}
+        </div>
       </div>
     </div>
   );
