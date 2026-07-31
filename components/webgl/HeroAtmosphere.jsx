@@ -91,23 +91,34 @@ export default function HeroAtmosphere() {
     const ro = new ResizeObserver(size);
     ro.observe(wrap);
 
-    // pointer → lerped uniform (subtle, almost subliminal)
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+
+    // pointer → lerped uniform (subtle, almost subliminal). A finger has no
+    // hover, so on a touch screen this listener would only ever fire mid-drag
+    // — the exact moment there is nothing to spare. Not registered there.
     const target = new THREE.Vector2(0, 0);
     const onPointer = (e) => {
       target.set(e.clientX / window.innerWidth - 0.5, 0.5 - e.clientY / window.innerHeight);
     };
-    window.addEventListener("pointermove", onPointer, { passive: true });
+    if (!coarse) window.addEventListener("pointermove", onPointer, { passive: true });
 
     let raf = 0;
     let running = false;
     let last = 0;
     let acc = 0;
     let elapsed = 0;
+    let frozen = false;
 
     const loop = (now) => {
       raf = requestAnimationFrame(loop);
       const dt = Math.min((now - last) / 1000, 0.1);
       last = now;
+      // Held still mid-scroll on touch: the clock stops with the drawing, so
+      // it resumes on the exact frame it left rather than jumping forward.
+      if (frozen) {
+        acc = 0;
+        return;
+      }
       acc += dt;
       if (acc < budget.frame) return; // frame cap, eased off on phones
       elapsed += acc;
@@ -134,6 +145,30 @@ export default function HeroAtmosphere() {
     );
     io.observe(wrap);
 
+    /**
+     * Since this became the site-wide ground it is a fixed layer, so that
+     * observer is true from first paint to last and the shader never rests.
+     * On a phone that means a full-screen fragment shader competing with the
+     * scroll for the whole session — and a scroll is the one thing a reader
+     * will notice hitching.
+     *
+     * So on touch it stands down while the page is actually moving and comes
+     * back a beat after it stops. Nothing is lost: at 24fps, drifting this
+     * slowly, smoke that holds still for the length of a flick is not
+     * something you can see — and freezing the clock rather than the frames
+     * means there is no jump when it picks up again.
+     */
+    let settle = 0;
+    const onScroll = () => {
+      frozen = true;
+      clearTimeout(settle);
+      settle = setTimeout(() => {
+        frozen = false;
+        last = performance.now();
+      }, 140);
+    };
+    if (coarse) window.addEventListener("scroll", onScroll, { passive: true });
+
     const fade = gsap.fromTo(
       wrap,
       { autoAlpha: 0 },
@@ -144,6 +179,8 @@ export default function HeroAtmosphere() {
       stop();
       io.disconnect();
       ro.disconnect();
+      clearTimeout(settle);
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onPointer);
       fade.kill();
       geometry.dispose();

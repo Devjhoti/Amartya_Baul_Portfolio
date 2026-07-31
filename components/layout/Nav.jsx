@@ -177,7 +177,13 @@ export default function Nav() {
         <nav
           data-condensed=""
           aria-label="Condensed"
-          className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-white/15 bg-[rgba(28,34,30,0.82)] p-1.5 text-chalk opacity-0 backdrop-blur-xl"
+          // No backdrop blur here, and the background is opaque enough not to
+          // need one. A blurred fixed bar has to resample everything sliding
+          // underneath it on every scroll frame, and this bar is on screen for
+          // the entire scroll — it is the most expensive pixel on a phone and
+          // the one nobody is looking at. The desktop pill, which is over a
+          // still page most of the time, keeps its material.
+          className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-white/15 bg-[rgba(24,29,26,0.96)] p-1.5 text-chalk opacity-0"
           style={{
             boxShadow:
               "0 18px 40px -18px rgba(0,0,0,0.85), inset 1px 1px 0 rgba(255,255,255,0.1)",
